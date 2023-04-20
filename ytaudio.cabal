@@ -30,6 +30,9 @@ library
       Paths_ytaudio
   hs-source-dirs:
       src
+  default-extensions:
+      ImportQualifiedPost
+      NamedFieldPuns
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
   build-depends:
       base >=4.7 && <5
@@ -37,6 +40,7 @@ library
     , text
     , wai
     , warp
+    , xml
   default-language: Haskell2010
 
 executable ytaudio-exe
@@ -45,6 +49,9 @@ executable ytaudio-exe
       Paths_ytaudio
   hs-source-dirs:
       app
+  default-extensions:
+      ImportQualifiedPost
+      NamedFieldPuns
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base
@@ -52,6 +59,7 @@ executable ytaudio-exe
     , text
     , wai
     , warp
+    , xml
     , ytaudio
   default-language: Haskell2010
 
@@ -62,6 +70,9 @@ test-suite ytaudio-test
       Paths_ytaudio
   hs-source-dirs:
       test
+  default-extensions:
+      ImportQualifiedPost
+      NamedFieldPuns
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       aeson
@@ -73,5 +84,6 @@ test-suite ytaudio-test
     , text
     , wai
     , warp
+    , xml
     , ytaudio
   default-language: Haskell2010

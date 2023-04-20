@@ -1,0 +1,528 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns:yt="http://www.youtube.com/xml/schemas/2015" xmlns:media="http://search.yahoo.com/mrss/" xmlns="http://www.w3.org/2005/Atom">
+ <link rel="self" href="http://www.youtube.com/feeds/videos.xml?channel_id=UCdI5EH48Quo0Cope7Jvg-Pg"/>
+ <id>yt:channel:</id>
+ <yt:channelId></yt:channelId>
+ <title>Карьера в ИТ</title>
+ <link rel="alternate" href="https://www.youtube.com/channel/UCdI5EH48Quo0Cope7Jvg-Pg"/>
+ <author>
+  <name>Карьера в ИТ</name>
+  <uri>https://www.youtube.com/channel/UCdI5EH48Quo0Cope7Jvg-Pg</uri>
+ </author>
+ <published>2019-07-11T12:46:17+00:00</published>
+ <entry>
+  <id>yt:video:MW1EWR8qdq4</id>
+  <yt:videoId>MW1EWR8qdq4</yt:videoId>
+  <yt:channelId>UCdI5EH48Quo0Cope7Jvg-Pg</yt:channelId>
+  <title>#71 Чемпион, умеющий писать языки программирования</title>
+  <link rel="alternate" href="https://www.youtube.com/watch?v=MW1EWR8qdq4"/>
+  <author>
+   <name>Карьера в ИТ</name>
+   <uri>https://www.youtube.com/channel/UCdI5EH48Quo0Cope7Jvg-Pg</uri>
+  </author>
+  <published>2022-12-24T18:46:51+00:00</published>
+  <updated>2022-12-25T06:51:39+00:00</updated>
+  <media:group>
+   <media:title>#71 Чемпион, умеющий писать языки программирования</media:title>
+   <media:content url="https://www.youtube.com/v/MW1EWR8qdq4?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+   <media:thumbnail url="https://i2.ytimg.com/vi/MW1EWR8qdq4/hqdefault.jpg" width="480" height="360"/>
+   <media:description>Владимир успешно выступил на чемпионате мира и вернулся к написанию Domain–Specific Languages. Вы слышали о такой специализации в ИТ?
+
+Мои Youtube каналы: 
+
+1. Yakov Fain:  https://www.youtube.com/channel/UCnExw5tVdA3TJeb4kmCd-JQ 
+2. Карьера в ИТ:  https://www.youtube.com/channel/UCdI5EH48Quo0Cope7Jvg-Pg 
+3. Программист читает библию: https://www.youtube.com/channel/UCB4-nBNOP0N1J2Sh-A51sFQ</media:description>
+   <media:community>
+    <media:starRating count="40" average="5.00" min="1" max="5"/>
+    <media:statistics views="661"/>
+   </media:community>
+  </media:group>
+ </entry>
+ <entry>
+  <id>yt:video:Eb-kk9dKQuM</id>
+  <yt:videoId>Eb-kk9dKQuM</yt:videoId>
+  <yt:channelId>UCdI5EH48Quo0Cope7Jvg-Pg</yt:channelId>
+  <title>#70  У меня плохой менеджер</title>
+  <link rel="alternate" href="https://www.youtube.com/watch?v=Eb-kk9dKQuM"/>
+  <author>
+   <name>Карьера в ИТ</name>
+   <uri>https://www.youtube.com/channel/UCdI5EH48Quo0Cope7Jvg-Pg</uri>
+  </author>
+  <published>2022-11-20T05:03:39+00:00</published>
+  <updated>2022-11-21T04:53:02+00:00</updated>
+  <media:group>
+   <media:title>#70  У меня плохой менеджер</media:title>
+   <media:content url="https://www.youtube.com/v/Eb-kk9dKQuM?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+   <media:thumbnail url="https://i2.ytimg.com/vi/Eb-kk9dKQuM/hqdefault.jpg" width="480" height="360"/>
+   <media:description>В этом стриме я говорил о том, почему программисты считают некоторых менеджеров плохими и что с этим делать
+
+Мои Youtube каналы: 
+
+1. Yakov Fain: https://www.youtube.com/channel/UCnExw5tVdA3TJeb4kmCd-JQ 
+2. Карьера в ИТ:  https://www.youtube.com/channel/UCdI5EH48Quo0Cope7Jvg-Pg 
+3. Программист читает библию: https://www.youtube.com/channel/UCB4-nBNOP0N1J2Sh-A51sFQ</media:description>
+   <media:community>
+    <media:starRating count="68" average="5.00" min="1" max="5"/>
+    <media:statistics views="640"/>
+   </media:community>
+  </media:group>
+ </entry>
+ <entry>
+  <id>yt:video:Xxh2ATeq8eE</id>
+  <yt:videoId>Xxh2ATeq8eE</yt:videoId>
+  <yt:channelId>UCdI5EH48Quo0Cope7Jvg-Pg</yt:channelId>
+  <title>#69 Что за профессия Developer Advocate?</title>
+  <link rel="alternate" href="https://www.youtube.com/watch?v=Xxh2ATeq8eE"/>
+  <author>
+   <name>Карьера в ИТ</name>
+   <uri>https://www.youtube.com/channel/UCdI5EH48Quo0Cope7Jvg-Pg</uri>
+  </author>
+  <published>2022-09-14T08:16:23+00:00</published>
+  <updated>2022-09-16T16:00:39+00:00</updated>
+  <media:group>
+   <media:title>#69 Что за профессия Developer Advocate?</media:title>
+   <media:content url="https://www.youtube.com/v/Xxh2ATeq8eE?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+   <media:thumbnail url="https://i1.ytimg.com/vi/Xxh2ATeq8eE/hqdefault.jpg" width="480" height="360"/>
+   <media:description>В этом подкасте участвовали Виктор Гамов, Барух Садогурский и Яков Файн.  Начали разговор с девопсов, но быстро переключились на деврелов и всяких там адвокатов.
+
+Полезные ссылки:
+1. Кто такие деврелы https://habr.com/ru/post/570594
+2. Книга Kafka in Action https://www.manning.com/books/kafka-in-action
+3. Книга The business value of Developer Relations https://www.amazon.com/Business-Value-Developer-Relations-Communities/dp/1484237471
+4. Книги Баруха https://www.amazon.com/Baruch-Sadogursky/e/B08FSXSMY5?&amp;linkCode=sl2&amp;tag=sadogurskycom-20&amp;linkId=633552e8a712154a8861763344769fb0&amp;language=en_US&amp;ref_=as_li_ss_tl
+
+Мои Youtube каналы: 
+
+1. Yakov Fain: https://www.youtube.com/channel/UCnExw5tVdA3TJeb4kmCd-JQ 
+2. Карьера в ИТ:  https://www.youtube.com/channel/UCdI5EH48Quo0Cope7Jvg-Pg 
+3. Программист читает библию: https://www.youtube.com/channel/UCB4-nBNOP0N1J2Sh-A51sFQ</media:description>
+   <media:community>
+    <media:starRating count="75" average="5.00" min="1" max="5"/>
+    <media:statistics views="948"/>
+   </media:community>
+  </media:group>
+ </entry>
+ <entry>
+  <id>yt:video:gYBPbSUhrKQ</id>
+  <yt:videoId>gYBPbSUhrKQ</yt:videoId>
+  <yt:channelId>UCdI5EH48Quo0Cope7Jvg-Pg</yt:channelId>
+  <title>#68 Советы начинающим программистам. Part 6</title>
+  <link rel="alternate" href="https://www.youtube.com/watch?v=gYBPbSUhrKQ"/>
+  <author>
+   <name>Карьера в ИТ</name>
+   <uri>https://www.youtube.com/channel/UCdI5EH48Quo0Cope7Jvg-Pg</uri>
+  </author>
+  <published>2022-07-22T05:23:15+00:00</published>
+  <updated>2022-08-19T15:34:43+00:00</updated>
+  <media:group>
+   <media:title>#68 Советы начинающим программистам. Part 6</media:title>
+   <media:content url="https://www.youtube.com/v/gYBPbSUhrKQ?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+   <media:thumbnail url="https://i4.ytimg.com/vi/gYBPbSUhrKQ/hqdefault.jpg" width="480" height="360"/>
+   <media:description>В этом стриме Виктор Гамов (@gamussa) и я (@yfain) отвечали на вопросы
+
+Мои Youtube каналы: 
+
+1. Yakov Fain: https://www.youtube.com/channel/UCnExw5tVdA3TJeb4kmCd-JQ</media:description>
+   <media:community>
+    <media:starRating count="91" average="5.00" min="1" max="5"/>
+    <media:statistics views="1438"/>
+   </media:community>
+  </media:group>
+ </entry>
+ <entry>
+  <id>yt:video:4-6OamlCM8c</id>
+  <yt:videoId>4-6OamlCM8c</yt:videoId>
+  <yt:channelId>UCdI5EH48Quo0Cope7Jvg-Pg</yt:channelId>
+  <title>#67 Советы начинающим программистам. Part 5</title>
+  <link rel="alternate" href="https://www.youtube.com/watch?v=4-6OamlCM8c"/>
+  <author>
+   <name>Карьера в ИТ</name>
+   <uri>https://www.youtube.com/channel/UCdI5EH48Quo0Cope7Jvg-Pg</uri>
+  </author>
+  <published>2022-07-16T05:13:34+00:00</published>
+  <updated>2022-08-19T15:35:42+00:00</updated>
+  <media:group>
+   <media:title>#67 Советы начинающим программистам. Part 5</media:title>
+   <media:content url="https://www.youtube.com/v/4-6OamlCM8c?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+   <media:thumbnail url="https://i1.ytimg.com/vi/4-6OamlCM8c/hqdefault.jpg" width="480" height="360"/>
+   <media:description>В этом стриме Виктор Гамов (@gamussa) и я (@yfain) говорили о технике прохождения интервью.
+
+Links:
+
+1. Интервью с Евгением Борисовым https://youtu.be/4ESHltu1YBI
+2. How to talk to anyone https://amzn.to/3cmlZ3f
+3. Живое резюме Виктора Гамова 
+https://youtu.be/Mu5DhI8b0xc
+
+Мои Youtube каналы: 
+
+1. Yakov Fain: https://www.youtube.com/channel/UCnExw5tVdA3TJeb4kmCd-JQ 
+2. Карьера в ИТ:  https://www.youtube.com/channel/UCdI5EH48Quo0Cope7Jvg-Pg 
+3. Программист читает библию: https://www.youtube.com/channel/UCB4-nBNOP0N1J2Sh-A51sFQ</media:description>
+   <media:community>
+    <media:starRating count="124" average="5.00" min="1" max="5"/>
+    <media:statistics views="1494"/>
+   </media:community>
+  </media:group>
+ </entry>
+ <entry>
+  <id>yt:video:DzPnPjRebIM</id>
+  <yt:videoId>DzPnPjRebIM</yt:videoId>
+  <yt:channelId>UCdI5EH48Quo0Cope7Jvg-Pg</yt:channelId>
+  <title>#66 Советы  начинающим программистам. Part 4</title>
+  <link rel="alternate" href="https://www.youtube.com/watch?v=DzPnPjRebIM"/>
+  <author>
+   <name>Карьера в ИТ</name>
+   <uri>https://www.youtube.com/channel/UCdI5EH48Quo0Cope7Jvg-Pg</uri>
+  </author>
+  <published>2022-07-02T05:28:39+00:00</published>
+  <updated>2022-07-03T14:02:36+00:00</updated>
+  <media:group>
+   <media:title>#66 Советы  начинающим программистам. Part 4</media:title>
+   <media:content url="https://www.youtube.com/v/DzPnPjRebIM?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+   <media:thumbnail url="https://i1.ytimg.com/vi/DzPnPjRebIM/hqdefault.jpg" width="480" height="360"/>
+   <media:description>Это продолжение прерванного предыдущего стрима https://www.youtube.com/watch?v=zapp9YakBxk
+
+Мои Youtube каналы: 
+
+1. Yakov Fain: https://www.youtube.com/channel/UCnExw5tVdA3TJeb4kmCd-JQ 
+2. Карьера в ИТ:  https://www.youtube.com/channel/UCdI5EH48Quo0Cope7Jvg-Pg 
+3. Программист читает библию: https://www.youtube.com/channel/UCB4-nBNOP0N1J2Sh-A51sFQ</media:description>
+   <media:community>
+    <media:starRating count="80" average="5.00" min="1" max="5"/>
+    <media:statistics views="1194"/>
+   </media:community>
+  </media:group>
+ </entry>
+ <entry>
+  <id>yt:video:zapp9YakBxk</id>
+  <yt:videoId>zapp9YakBxk</yt:videoId>
+  <yt:channelId>UCdI5EH48Quo0Cope7Jvg-Pg</yt:channelId>
+  <title>#65 Советы начинающим программистам. Part 3</title>
+  <link rel="alternate" href="https://www.youtube.com/watch?v=zapp9YakBxk"/>
+  <author>
+   <name>Карьера в ИТ</name>
+   <uri>https://www.youtube.com/channel/UCdI5EH48Quo0Cope7Jvg-Pg</uri>
+  </author>
+  <published>2022-07-02T04:46:35+00:00</published>
+  <updated>2022-08-19T15:52:12+00:00</updated>
+  <media:group>
+   <media:title>#65 Советы начинающим программистам. Part 3</media:title>
+   <media:content url="https://www.youtube.com/v/zapp9YakBxk?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+   <media:thumbnail url="https://i3.ytimg.com/vi/zapp9YakBxk/hqdefault.jpg" width="480" height="360"/>
+   <media:description>В конце был сбой электричества, извините.  Здесь записалось 24 минуты, а продолжили в стриме #66
+
+Мои Youtube каналы: 
+
+1. Yakov Fain: https://www.youtube.com/channel/UCnExw5tVdA3TJeb4kmCd-JQ 
+2. Карьера в ИТ:  https://www.youtube.com/channel/UCdI5EH48Quo0Cope7Jvg-Pg 
+3. Программист читает библию: https://www.youtube.com/channel/UCB4-nBNOP0N1J2Sh-A51sFQ</media:description>
+   <media:community>
+    <media:starRating count="80" average="5.00" min="1" max="5"/>
+    <media:statistics views="1056"/>
+   </media:community>
+  </media:group>
+ </entry>
+ <entry>
+  <id>yt:video:27iPbxexmIY</id>
+  <yt:videoId>27iPbxexmIY</yt:videoId>
+  <yt:channelId>UCdI5EH48Quo0Cope7Jvg-Pg</yt:channelId>
+  <title>#64 Критикую два резюме</title>
+  <link rel="alternate" href="https://www.youtube.com/watch?v=27iPbxexmIY"/>
+  <author>
+   <name>Карьера в ИТ</name>
+   <uri>https://www.youtube.com/channel/UCdI5EH48Quo0Cope7Jvg-Pg</uri>
+  </author>
+  <published>2022-06-28T18:30:02+00:00</published>
+  <updated>2022-09-08T02:51:40+00:00</updated>
+  <media:group>
+   <media:title>#64 Критикую два резюме</media:title>
+   <media:content url="https://www.youtube.com/v/27iPbxexmIY?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+   <media:thumbnail url="https://i3.ytimg.com/vi/27iPbxexmIY/hqdefault.jpg" width="480" height="360"/>
+   <media:description>В этом ролике я критикую два резюме, которое мне прислали молодые программисты
+
+Мои Youtube каналы: 
+
+1. Yakov Fain:  https://www.youtube.com/channel/UCnExw5tVdA3TJeb4kmCd-JQ 
+2. Карьера в ИТ:  https://www.youtube.com/channel/UCdI5EH48Quo0Cope7Jvg-Pg 
+3. Программист читает библию: https://www.youtube.com/channel/UCB4-nBNOP0N1J2Sh-A51sFQ</media:description>
+   <media:community>
+    <media:starRating count="78" average="5.00" min="1" max="5"/>
+    <media:statistics views="977"/>
+   </media:community>
+  </media:group>
+ </entry>
+ <entry>
+  <id>yt:video:bt7sBAyu7-k</id>
+  <yt:videoId>bt7sBAyu7-k</yt:videoId>
+  <yt:channelId>UCdI5EH48Quo0Cope7Jvg-Pg</yt:channelId>
+  <title>#63 Разбираю резюме студента</title>
+  <link rel="alternate" href="https://www.youtube.com/watch?v=bt7sBAyu7-k"/>
+  <author>
+   <name>Карьера в ИТ</name>
+   <uri>https://www.youtube.com/channel/UCdI5EH48Quo0Cope7Jvg-Pg</uri>
+  </author>
+  <published>2022-06-14T13:00:16+00:00</published>
+  <updated>2022-08-19T15:51:44+00:00</updated>
+  <media:group>
+   <media:title>#63 Разбираю резюме студента</media:title>
+   <media:content url="https://www.youtube.com/v/bt7sBAyu7-k?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+   <media:thumbnail url="https://i3.ytimg.com/vi/bt7sBAyu7-k/hqdefault.jpg" width="480" height="360"/>
+   <media:description>В этом ролике я критикую резюме, которое мне прислал один студент.
+
+Мои Youtube каналы: 
+
+1. Yakov Fain:  https://www.youtube.com/channel/UCnExw5tVdA3TJeb4kmCd-JQ 
+2. Карьера в ИТ:  https://www.youtube.com/channel/UCdI5EH48Quo0Cope7Jvg-Pg 
+3. Программист читает библию: https://www.youtube.com/channel/UCB4-nBNOP0N1J2Sh-A51sFQ</media:description>
+   <media:community>
+    <media:starRating count="85" average="5.00" min="1" max="5"/>
+    <media:statistics views="1038"/>
+   </media:community>
+  </media:group>
+ </entry>
+ <entry>
+  <id>yt:video:3JRo7N7bSog</id>
+  <yt:videoId>3JRo7N7bSog</yt:videoId>
+  <yt:channelId>UCdI5EH48Quo0Cope7Jvg-Pg</yt:channelId>
+  <title>#62 Советы начинающим программистам. Part 2</title>
+  <link rel="alternate" href="https://www.youtube.com/watch?v=3JRo7N7bSog"/>
+  <author>
+   <name>Карьера в ИТ</name>
+   <uri>https://www.youtube.com/channel/UCdI5EH48Quo0Cope7Jvg-Pg</uri>
+  </author>
+  <published>2022-06-06T10:00:29+00:00</published>
+  <updated>2022-06-06T10:00:40+00:00</updated>
+  <media:group>
+   <media:title>#62 Советы начинающим программистам. Part 2</media:title>
+   <media:content url="https://www.youtube.com/v/3JRo7N7bSog?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+   <media:thumbnail url="https://i4.ytimg.com/vi/3JRo7N7bSog/hqdefault.jpg" width="480" height="360"/>
+   <media:description>Яков Файн и Виктор Гамов продолжают разговор о первых шагах начинающих программистов. 
+
+00:00 Дружите с рекрутерами
+04:26 На кого работает рекрутер
+09:35 Be nice
+10:38 Заполняем анкету: Сколько вы зарабатываете?
+16:16 Вам недоплачивают?
+20:58 Что делать мидлу после работы?
+25:08 Если ты в семье уже царь
+26:35 Новая камера Виктора
+
+Viktor Gamov: @gamussa
+
+Мои Youtube каналы: 
+
+1. Yakov Fain:  https://www.youtube.com/channel/UCnExw5tVdA3TJeb4kmCd-JQ 
+2. Карьера в ИТ:  https://www.youtube.com/channel/UCdI5EH48Quo0Cope7Jvg-Pg 
+3. Программист читает библию: https://www.youtube.com/channel/UCB4-nBNOP0N1J2Sh-A51sFQ</media:description>
+   <media:community>
+    <media:starRating count="154" average="5.00" min="1" max="5"/>
+    <media:statistics views="1460"/>
+   </media:community>
+  </media:group>
+ </entry>
+ <entry>
+  <id>yt:video:5hfQooPBhas</id>
+  <yt:videoId>5hfQooPBhas</yt:videoId>
+  <yt:channelId>UCdI5EH48Quo0Cope7Jvg-Pg</yt:channelId>
+  <title>#61 Советы начинающим программистам. Part 1</title>
+  <link rel="alternate" href="https://www.youtube.com/watch?v=5hfQooPBhas"/>
+  <author>
+   <name>Карьера в ИТ</name>
+   <uri>https://www.youtube.com/channel/UCdI5EH48Quo0Cope7Jvg-Pg</uri>
+  </author>
+  <published>2022-05-29T12:00:02+00:00</published>
+  <updated>2022-06-06T02:00:19+00:00</updated>
+  <media:group>
+   <media:title>#61 Советы начинающим программистам. Part 1</media:title>
+   <media:content url="https://www.youtube.com/v/5hfQooPBhas?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+   <media:thumbnail url="https://i2.ytimg.com/vi/5hfQooPBhas/hqdefault.jpg" width="480" height="360"/>
+   <media:description>Яков Файн и Виктор Гамов начали разговор о первых шагах начинающих программистов. Извините за резкое окончание видео - кончилось место на SD карточке :(
+
+Viktor Gamov: @gamussa
+
+Мои Youtube каналы: 
+
+1. Yakov Fain:  https://www.youtube.com/channel/UCnExw5tVdA3TJeb4kmCd-JQ 
+2. Карьера в ИТ:  https://www.youtube.com/channel/UCdI5EH48Quo0Cope7Jvg-Pg 
+3. Программист читает библию: https://www.youtube.com/channel/UCB4-nBNOP0N1J2Sh-A51sFQ</media:description>
+   <media:community>
+    <media:starRating count="196" average="5.00" min="1" max="5"/>
+    <media:statistics views="4136"/>
+   </media:community>
+  </media:group>
+ </entry>
+ <entry>
+  <id>yt:video:Mu5DhI8b0xc</id>
+  <yt:videoId>Mu5DhI8b0xc</yt:videoId>
+  <yt:channelId>UCdI5EH48Quo0Cope7Jvg-Pg</yt:channelId>
+  <title>#60 Живое резюме Виктора Гамова</title>
+  <link rel="alternate" href="https://www.youtube.com/watch?v=Mu5DhI8b0xc"/>
+  <author>
+   <name>Карьера в ИТ</name>
+   <uri>https://www.youtube.com/channel/UCdI5EH48Quo0Cope7Jvg-Pg</uri>
+  </author>
+  <published>2022-05-11T02:24:27+00:00</published>
+  <updated>2022-05-12T02:30:46+00:00</updated>
+  <media:group>
+   <media:title>#60 Живое резюме Виктора Гамова</media:title>
+   <media:content url="https://www.youtube.com/v/Mu5DhI8b0xc?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+   <media:thumbnail url="https://i2.ytimg.com/vi/Mu5DhI8b0xc/hqdefault.jpg" width="480" height="360"/>
+   <media:description>В этом стриме я поспрошал Викторa Гамова то том, как он строил свою карьеру, почему менял работу и что понял.
+
+00:00 Приветствие
+03:59 О чем говорить будем
+05:30 Настройка звука, чтобы в 2х ушах слышно было
+08:50 Как Витя учился и работал в университете
+18:25 Первое знакомство с США: Work and Travel
+19:38 Аспирантура
+22:15 Переход в красивый UI:  Rich Internet Applications
+35:43 А не поехать-ли в Америку?
+27:47 Рабочая виза H1B в Farata Systems
+36:20 Востребованы-ли Кубернетис и Кафка?
+37:50 Почему Виктор хвалит Якова? Потому, что Яков хвалит Виктора 
+39:55 Иди и получи свой отказ: https://tinyurl.com/4w2hurvw
+43:30 Уход из Фараты
+46:19 Важно, кто знает, что ты знаешь
+47:58 Он перестал говорить &quot;Я не знаю&quot;
+50:20 Мальчики с моторчиками: http://myflex.org/yf/podru/budam123.mp3 
+51:53 Роль Анатолия
+55:05 Выучил что-то? Поделись с другим
+58:50 Переход в Hazelcast 
+01:04:00 Роль Баруха
+01:09:13 Переход в Confluent
+01:14:30 Книжка Kafka in Action: https://www.amazon.com/Kafka-Action-Dylan-Scott/dp/161729523X
+01:15:38 Как правильно учиться
+
+Во время подкаста Виктор упомянул следующие книги, полезные для консультантов в IT: 
+
+http://myflex.org/yf/ESnoBS.pdf Enterprise Development without BS (бесплатная книга)
+https://amzn.to/3waBEc0 Enterprise Web Development 
+https://amzn.to/39Fd4bw Kafka in Action
+https://amzn.to/397cXVY Mastering Technical Sales
+https://amzn.to/3M0OhNj 12 Rules of Life 
+https://amzn.to/3yIAOGv Start with Why
+
+Мои Youtube каналы: 
+
+1. Yakov Fain: https://www.youtube.com/channel/UCnExw5tVdA3TJeb4kmCd-JQ 
+2. Карьера в ИТ:  https://www.youtube.com/channel/UCdI5EH48Quo0Cope7Jvg-Pg 
+3. Программист читает библию: https://www.youtube.com/channel/UCB4-nBNOP0N1J2Sh-A51sFQ</media:description>
+   <media:community>
+    <media:starRating count="92" average="5.00" min="1" max="5"/>
+    <media:statistics views="1571"/>
+   </media:community>
+  </media:group>
+ </entry>
+ <entry>
+  <id>yt:video:2M9KLTrbUgQ</id>
+  <yt:videoId>2M9KLTrbUgQ</yt:videoId>
+  <yt:channelId>UCdI5EH48Quo0Cope7Jvg-Pg</yt:channelId>
+  <title>#59 Релокация программистов зарубеж</title>
+  <link rel="alternate" href="https://www.youtube.com/watch?v=2M9KLTrbUgQ"/>
+  <author>
+   <name>Карьера в ИТ</name>
+   <uri>https://www.youtube.com/channel/UCdI5EH48Quo0Cope7Jvg-Pg</uri>
+  </author>
+  <published>2022-05-04T06:00:00+00:00</published>
+  <updated>2022-08-19T15:50:43+00:00</updated>
+  <media:group>
+   <media:title>#59 Релокация программистов зарубеж</media:title>
+   <media:content url="https://www.youtube.com/v/2M9KLTrbUgQ?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+   <media:thumbnail url="https://i3.ytimg.com/vi/2M9KLTrbUgQ/hqdefault.jpg" width="480" height="360"/>
+   <media:description>У меня в гостях Радио Бермудский Треугольник: Даник (Германия), Леник (Франция), Наташа (Германия) и Оля (США).  Прошлые аудио покасты здесь: https://btradio.wordpress.com 
+
+Говорим о внезапной необходимости для российских программистов уехать за границу. Можно-ли что посоветовать вновь прибывшим в страну Х.
+
+Наташа упоминала вот этот немецкий сайт с полезной информацией для иммигрантов:
+https://www.auswaertiges-amt.de/de/service/visa-und-aufenthalt/nationale-visa/feg/fachkraefte-haeufige-fragen
+
+
+Мои Youtube каналы: 
+
+1. Yakov Fain:  https://www.youtube.com/channel/UCnExw5tVdA3TJeb4kmCd-JQ 
+2. Карьера в ИТ:  https://www.youtube.com/channel/UCdI5EH48Quo0Cope7Jvg-Pg 
+3. Программист читает библию: https://www.youtube.com/channel/UCB4-nBNOP0N1J2Sh-A51sFQ</media:description>
+   <media:community>
+    <media:starRating count="67" average="5.00" min="1" max="5"/>
+    <media:statistics views="1440"/>
+   </media:community>
+  </media:group>
+ </entry>
+ <entry>
+  <id>yt:video:prXUUW9bh7g</id>
+  <yt:videoId>prXUUW9bh7g</yt:videoId>
+  <yt:channelId>UCdI5EH48Quo0Cope7Jvg-Pg</yt:channelId>
+  <title>#58 Не выходит перейти в IT</title>
+  <link rel="alternate" href="https://www.youtube.com/watch?v=prXUUW9bh7g"/>
+  <author>
+   <name>Карьера в ИТ</name>
+   <uri>https://www.youtube.com/channel/UCdI5EH48Quo0Cope7Jvg-Pg</uri>
+  </author>
+  <published>2022-02-19T16:30:10+00:00</published>
+  <updated>2022-02-21T06:02:47+00:00</updated>
+  <media:group>
+   <media:title>#58 Не выходит перейти в IT</media:title>
+   <media:content url="https://www.youtube.com/v/prXUUW9bh7g?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+   <media:thumbnail url="https://i1.ytimg.com/vi/prXUUW9bh7g/hqdefault.jpg" width="480" height="360"/>
+   <media:description>В этом видео я говорил на следующие темы:
+
+00:00 Как изменилось мое рабочее место программиста https://yakovfain.com/2013/04/15/three-programmers-three-home-offices/
+04:56 Говорить-ли, что не прошел испытательный срок
+07:07 Подавать-ли руку коллегам-шестеркам
+09:29 Пытаюсь стать программистом и не получается
+14:55 Стоит-ли в 40 свичнуться в ИТ
+16:42 Как стать лучшим программистом
+20:20 Как укрепить психологическую стойкость
+
+Мои Youtube каналы: 
+
+1. Yakov Fain (Будни Америки): https://www.youtube.com/channel/UCnExw5tVdA3TJeb4kmCd-JQ 
+2. Карьера в ИТ:  https://www.youtube.com/channel/UCdI5EH48Quo0Cope7Jvg-Pg 
+3. Программист читает библию: https://www.youtube.com/channel/UCB4-nBNOP0N1J2Sh-A51sFQ</media:description>
+   <media:community>
+    <media:starRating count="156" average="5.00" min="1" max="5"/>
+    <media:statistics views="1648"/>
+   </media:community>
+  </media:group>
+ </entry>
+ <entry>
+  <id>yt:video:JSEwNP7T8Gs</id>
+  <yt:videoId>JSEwNP7T8Gs</yt:videoId>
+  <yt:channelId>UCdI5EH48Quo0Cope7Jvg-Pg</yt:channelId>
+  <title>#57 Кому можно считать чужие деньги</title>
+  <link rel="alternate" href="https://www.youtube.com/watch?v=JSEwNP7T8Gs"/>
+  <author>
+   <name>Карьера в ИТ</name>
+   <uri>https://www.youtube.com/channel/UCdI5EH48Quo0Cope7Jvg-Pg</uri>
+  </author>
+  <published>2022-02-05T16:30:02+00:00</published>
+  <updated>2022-02-07T07:12:14+00:00</updated>
+  <media:group>
+   <media:title>#57 Кому можно считать чужие деньги</media:title>
+   <media:content url="https://www.youtube.com/v/JSEwNP7T8Gs?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+   <media:thumbnail url="https://i3.ytimg.com/vi/JSEwNP7T8Gs/hqdefault.jpg" width="480" height="360"/>
+   <media:description>В этом видео я отвечаю на следующие вопросы и коменты:
+
+00:00 Как правильно писать документацию
+03:42 В какой команде можно быстрее повысить скилы
+05:28 Если устроюсь на работу, пришлю донат
+09:36 Утром бонус, вечером увольнение
+12:02 Чувствую нехватку базовых знаний
+15:27 Кому можно считать чужие деньги
+17:54 Когда работодатель ничего на вас не зарабатывает
+20:22 Что делать, если у меня плохие communication skills
+
+Мои Youtube каналы: 
+
+1. Yakov Fain (Будни Америки): https://www.youtube.com/channel/UCnExw5tVdA3TJeb4kmCd-JQ 
+2. Карьера в ИТ:  https://www.youtube.com/channel/UCdI5EH48Quo0Cope7Jvg-Pg 
+3. Программист читает библию: https://www.youtube.com/channel/UCB4-nBNOP0N1J2Sh-A51sFQ</media:description>
+   <media:community>
+    <media:starRating count="108" average="5.00" min="1" max="5"/>
+    <media:statistics views="1128"/>
+   </media:community>
+  </media:group>
+ </entry>
+</feed>

@@ -25,6 +25,7 @@ dependencies:
 - text
 - wai
 - warp
+- xml
 
 ghc-options:
 - -Wall
@@ -36,6 +37,10 @@ ghc-options:
 - -Wmissing-home-modules
 - -Wpartial-fields
 - -Wredundant-constraints
+
+default-extensions:
+- ImportQualifiedPost
+- NamedFieldPuns
 
 library:
   source-dirs: src
