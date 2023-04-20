@@ -32,9 +32,9 @@ library
       src
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
   build-depends:
-      aeson
-    , base >=4.7 && <5
+      base >=4.7 && <5
     , servant-server
+    , text
     , wai
     , warp
   default-language: Haskell2010
@@ -47,9 +47,9 @@ executable ytaudio-exe
       app
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      aeson
-    , base
+      base
     , servant-server
+    , text
     , wai
     , warp
     , ytaudio
@@ -70,6 +70,7 @@ test-suite ytaudio-test
     , hspec-wai
     , hspec-wai-json
     , servant-server
+    , text
     , wai
     , warp
     , ytaudio
