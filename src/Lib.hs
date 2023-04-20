@@ -12,7 +12,7 @@ import Network.Wai
 import Network.Wai.Handler.Warp
 import Servant
 
-type API = "users" :> Get '[PlainText] Text
+type API = "feed" :> Capture "ytid" Text :> Get '[PlainText] Text
 
 startApp :: IO ()
 startApp = run 8080 app
@@ -24,4 +24,7 @@ api :: Proxy API
 api = Proxy
 
 server :: Server API
-server = return "hello world"
+server = getFeed
+
+getFeed :: Text -> Handler Text
+getFeed ytid = pure $ "requested feed for youtube channel " <> ytid
