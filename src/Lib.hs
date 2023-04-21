@@ -8,7 +8,9 @@ module Lib
     , parseYoutubeFeed
     ) where
 
-import Control.Monad.IO.Class
+import Conduit
+import Control.Concurrent
+import Data.Conduit.List as C
 import Data.List (find)
 import Data.Text (Text)
 import Data.Text qualified as T
@@ -16,11 +18,12 @@ import Data.Text.IO qualified as T
 import Network.Wai
 import Network.Wai.Handler.Warp
 import Servant
+import Servant.Conduit ()
 import Text.XML.Light
 
 type API
   = "feed" :> Capture "channelid" Text :> Get '[PlainText] Text
-  :<|> "yt" :> Capture "videoid" Text :> Get '[PlainText] Text
+  :<|> "yt" :> Capture "videoid" Text :> StreamGet NoFraming PlainText (ConduitT () Text IO ())
 
 startApp :: IO ()
 startApp = run 8080 app
@@ -39,8 +42,18 @@ getFeed _channelId = liftIO $ T.readFile "samplefeed.rss"
   --xml <- liftIO $ T.readFile "ytsample.xml"
   --pure . T.pack . either id show . parseYoutubeFeed $ xml
 
-streamAudio :: Text -> Handler Text
-streamAudio videoId = pure $ "requested audio for video id " <> videoId
+-- shell command:
+-- `yt-dlp -f ba --no-progress 'https://www.youtube.com/watch?v=id' -o - | \
+-- ffmpeg -hide_banner -v warning -i pipe: -vn -acodec libmp3lame -b:a 96k \
+--   -movflags +faststart -metadata title='foo bar' -metadata genre=Podcast -f mp3 pipe:`
+--
+-- From https://github.com/xxcodianxx/youtube-dl-web/blob/master/server/src/util/stream.py#L59-L68
+-- and verbose output of `yt-dlp`
+-- https://github.com/yt-dlp/yt-dlp/blob/master/yt_dlp/postprocessor/ffmpeg.py
+streamAudio :: Text -> Handler (ConduitT () Text IO ())
+streamAudio videoId = pure $
+  -- https://github.com/haskell-servant/servant/blob/master/servant-conduit/example/Main.hs
+  C.sourceList ["requested audio for ", "video id " <> videoId] .| C.mapM (<$ threadDelay 1_000_000)
 
 data YTEntry = YTEntry
   { yteId :: !Text

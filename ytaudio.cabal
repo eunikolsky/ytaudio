@@ -33,9 +33,12 @@ library
   default-extensions:
       ImportQualifiedPost
       NamedFieldPuns
+      NumericUnderscores
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
   build-depends:
       base >=4.7 && <5
+    , conduit
+    , servant-conduit
     , servant-server
     , text
     , wai
@@ -52,9 +55,12 @@ executable ytaudio-exe
   default-extensions:
       ImportQualifiedPost
       NamedFieldPuns
+      NumericUnderscores
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base
+    , conduit
+    , servant-conduit
     , servant-server
     , text
     , wai
@@ -73,13 +79,16 @@ test-suite ytaudio-test
   default-extensions:
       ImportQualifiedPost
       NamedFieldPuns
+      NumericUnderscores
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       aeson
     , base
+    , conduit
     , hspec
     , hspec-wai
     , hspec-wai-json
+    , servant-conduit
     , servant-server
     , text
     , wai

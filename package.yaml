@@ -21,6 +21,8 @@ description:         Please see the README on GitHub at <https://github.com/gith
 
 dependencies:
 - base >= 4.7 && < 5
+- conduit
+- servant-conduit
 - servant-server
 - text
 - wai
@@ -41,6 +43,7 @@ ghc-options:
 default-extensions:
 - ImportQualifiedPost
 - NamedFieldPuns
+- NumericUnderscores
 
 library:
   source-dirs: src
