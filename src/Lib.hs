@@ -18,7 +18,9 @@ import Network.Wai.Handler.Warp
 import Servant
 import Text.XML.Light
 
-type API = "feed" :> Capture "ytid" Text :> Get '[PlainText] Text
+type API
+  = "feed" :> Capture "channelid" Text :> Get '[PlainText] Text
+  :<|> "yt" :> Capture "videoid" Text :> Get '[PlainText] Text
 
 startApp :: IO ()
 startApp = run 8080 app
@@ -30,12 +32,15 @@ api :: Proxy API
 api = Proxy
 
 server :: Server API
-server = getFeed
+server = getFeed :<|> streamAudio
 
 getFeed :: Text -> Handler Text
-getFeed _ytid = liftIO $ T.readFile "samplefeed.rss"
+getFeed _channelId = liftIO $ T.readFile "samplefeed.rss"
   --xml <- liftIO $ T.readFile "ytsample.xml"
   --pure . T.pack . either id show . parseYoutubeFeed $ xml
+
+streamAudio :: Text -> Handler Text
+streamAudio videoId = pure $ "requested audio for video id " <> videoId
 
 data YTEntry = YTEntry
   { yteId :: !Text
