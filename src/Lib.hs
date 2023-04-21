@@ -33,9 +33,9 @@ server :: Server API
 server = getFeed
 
 getFeed :: Text -> Handler Text
-getFeed _ytid = do
-  xml <- liftIO $ T.readFile "sample.xml"
-  pure . T.pack . either id show . parseYoutubeFeed $ xml
+getFeed _ytid = liftIO $ T.readFile "samplefeed.rss"
+  --xml <- liftIO $ T.readFile "ytsample.xml"
+  --pure . T.pack . either id show . parseYoutubeFeed $ xml
 
 data YTEntry = YTEntry
   { yteId :: !Text

@@ -1,0 +1,16 @@
+<rss version="2.0">
+  <channel>
+    <link></link>
+    <title>Sample yt audio feed</title>
+    <language>en</language>
+    <description></description>
+    <generator>_ytaudio</generator>
+    <item>
+      <title>Это не пипец</title>
+      <guid isPermaLink="false">Y4lOd3L-Uks</guid>
+      <description></description>
+      <pubDate>Fri, 21 Apr 2023 06:00:00 +0300</pubDate>
+      <enclosure url="http://localhost:8080/yt/Y4lOd3L-Uks" type="audio/mpeg" />
+    </item>
+  </channel>
+</rss>
