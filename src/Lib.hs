@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds       #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TypeOperators   #-}
 
@@ -11,12 +12,14 @@ module Lib
 import Conduit
 --import Control.Concurrent
 import Data.ByteString (ByteString)
+import Data.ByteString qualified as BS
 --import Data.Conduit.List qualified as C
 import Data.Conduit.Process qualified as C
 import Data.List (find)
 import Data.Text (Text)
 import Data.Text qualified as T
 import Data.Text.IO qualified as T
+import Network.HTTP.Media ((//))
 import Network.Wai
 import Network.Wai.Handler.Warp
 import Servant
@@ -24,9 +27,17 @@ import Servant.Conduit ()
 import System.Process
 import Text.XML.Light
 
+data MP3
+
+instance Accept MP3 where
+  contentType _ = "audio" // "mpeg"
+
+instance MimeRender MP3 ByteString where
+  mimeRender _ = BS.fromStrict
+
 type API
   = "feed" :> Capture "channelid" Text :> Get '[PlainText] Text
-  :<|> "yt" :> Capture "videoid" Text :> StreamGet NoFraming OctetStream (ConduitT () ByteString IO ())
+  :<|> "yt" :> Capture "videoid" Text :> StreamGet NoFraming MP3 (ConduitT () ByteString IO ())
 
 startApp :: IO ()
 startApp = run 8080 app

@@ -24,6 +24,7 @@ dependencies:
 - bytestring
 - conduit
 - conduit-extra
+- http-media
 - process
 - servant-conduit
 - servant-server
