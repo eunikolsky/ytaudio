@@ -57,7 +57,7 @@ streamAudio :: Text -> Handler (ConduitT () ByteString IO ())
 streamAudio videoId =
   -- https://github.com/haskell-servant/servant/blob/master/servant-conduit/example/Main.hs
   let getBestAudioProc = proc "yt-dlp"
-        ["-f", "ba", "--no-progress", "https://www.youtube.com/watch?v=" <> T.unpack videoId, "-o", "-"]
+        ["-f", "ba", "--quiet", "https://www.youtube.com/watch?v=" <> T.unpack videoId, "-o", "-"]
       encodeToMP3Proc = proc "ffmpeg"
         ["-hide_banner", "-v", "warning", "-i", "pipe:", "-vn", "-acodec", "libmp3lame", "-b:a", "96k"
         , "-movflags", "+faststart", "-metadata", "genre=Podcast", "-f", "mp3", "pipe:"]
