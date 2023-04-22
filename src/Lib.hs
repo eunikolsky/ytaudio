@@ -10,6 +10,7 @@ module Lib
 
 import Conduit
 --import Control.Concurrent
+import Data.ByteString (ByteString)
 --import Data.Conduit.List qualified as C
 import Data.Conduit.Process qualified as C
 import Data.List (find)
@@ -25,7 +26,7 @@ import Text.XML.Light
 
 type API
   = "feed" :> Capture "channelid" Text :> Get '[PlainText] Text
-  :<|> "yt" :> Capture "videoid" Text :> StreamGet NoFraming PlainText (ConduitT () Text IO ())
+  :<|> "yt" :> Capture "videoid" Text :> StreamGet NoFraming OctetStream (ConduitT () ByteString IO ())
 
 startApp :: IO ()
 startApp = run 8080 app
@@ -52,13 +53,19 @@ getFeed _channelId = liftIO $ T.readFile "samplefeed.rss"
 -- From https://github.com/xxcodianxx/youtube-dl-web/blob/master/server/src/util/stream.py#L59-L68
 -- and verbose output of `yt-dlp`
 -- https://github.com/yt-dlp/yt-dlp/blob/master/yt_dlp/postprocessor/ffmpeg.py
-streamAudio :: Text -> Handler (ConduitT () Text IO ())
+streamAudio :: Text -> Handler (ConduitT () ByteString IO ())
 streamAudio videoId =
   -- https://github.com/haskell-servant/servant/blob/master/servant-conduit/example/Main.hs
-  let getURLsProc = proc "yt-dlp" ["-f", "ba", "--no-progress", "https://www.youtube.com/watch?v=" <> T.unpack videoId, "--simulate", "--print", "urls"]
+  let getBestAudioProc = proc "yt-dlp"
+        ["-f", "ba", "--no-progress", "https://www.youtube.com/watch?v=" <> T.unpack videoId, "-o", "-"]
+      encodeToMP3Proc = proc "ffmpeg"
+        ["-hide_banner", "-v", "warning", "-i", "pipe:", "-vn", "-acodec", "libmp3lame", "-b:a", "96k"
+        , "-movflags", "+faststart", "-metadata", "genre=Podcast", "-f", "mp3", "pipe:"]
+
   in liftIO $ do
-    (C.ClosedStream,  out, C.Inherited, _phandle) <- C.streamingProcess getURLsProc
-    pure $ out .| decodeUtf8C
+    (C.ClosedStream, bestAudioOut, C.Inherited, _) <- C.streamingProcess getBestAudioProc
+    (C.UseProvidedHandle, encodedMP3Out, C.Inherited, _) <- C.streamingProcess encodeToMP3Proc { std_in = UseHandle bestAudioOut }
+    pure $ encodedMP3Out
     -- FIXME how to make sure the process terminates?
     --C.waitForStreamingProcess cph
 

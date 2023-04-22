@@ -37,6 +37,7 @@ library
   ghc-options: -Wall -Wcompat -Widentities -Werror=incomplete-record-updates -Werror=incomplete-uni-patterns -Wmissing-export-lists -Werror=missing-home-modules -Wpartial-fields -Wredundant-constraints -Wnoncanonical-monad-instances -Wunused-packages -Werror=empty-enumerations -Werror=missing-methods -Werror=missing-fields -Werror=incomplete-patterns
   build-depends:
       base >=4.7 && <5
+    , bytestring
     , conduit
     , conduit-extra
     , process
@@ -61,6 +62,7 @@ executable ytaudio-exe
   ghc-options: -Wall -Wcompat -Widentities -Werror=incomplete-record-updates -Werror=incomplete-uni-patterns -Wmissing-export-lists -Werror=missing-home-modules -Wpartial-fields -Wredundant-constraints -Wnoncanonical-monad-instances -Wunused-packages -Werror=empty-enumerations -Werror=missing-methods -Werror=missing-fields -Werror=incomplete-patterns -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base
+    , bytestring
     , conduit
     , conduit-extra
     , process
@@ -88,6 +90,7 @@ test-suite ytaudio-test
   build-depends:
       aeson
     , base
+    , bytestring
     , conduit
     , conduit-extra
     , hspec
