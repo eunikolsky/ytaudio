@@ -35,12 +35,19 @@ ghc-options:
 - -Wall
 - -Wcompat
 - -Widentities
-- -Wincomplete-record-updates
-- -Wincomplete-uni-patterns
+- -Werror=incomplete-record-updates
+- -Werror=incomplete-uni-patterns
 - -Wmissing-export-lists
-- -Wmissing-home-modules
+- -Werror=missing-home-modules
 - -Wpartial-fields
 - -Wredundant-constraints
+- -Wnoncanonical-monad-instances
+# - -Wmissing-deriving-strategies
+- -Wunused-packages
+- -Werror=empty-enumerations
+- -Werror=missing-methods
+- -Werror=missing-fields
+- -Werror=incomplete-patterns
 
 default-extensions:
 - ImportQualifiedPost

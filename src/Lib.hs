@@ -55,12 +55,9 @@ getFeed _channelId = liftIO $ T.readFile "samplefeed.rss"
 streamAudio :: Text -> Handler (ConduitT () Text IO ())
 streamAudio videoId =
   -- https://github.com/haskell-servant/servant/blob/master/servant-conduit/example/Main.hs
-  let getURLsProc =
-    -- proc "yt-dlp" ["-f", "ba", "--no-progress", "https://www.youtube.com/watch?v=" <> T.unpack videoId, "--simulate", "--print", "urls"]
-        shell $ "echo foo; sleep 1; echo bar '" <> T.unpack videoId <> "'"
+  let getURLsProc = proc "yt-dlp" ["-f", "ba", "--no-progress", "https://www.youtube.com/watch?v=" <> T.unpack videoId, "--simulate", "--print", "urls"]
   in liftIO $ do
     (C.ClosedStream,  out, C.Inherited, _phandle) <- C.streamingProcess getURLsProc
-    --C.withCheckedProcessCleanup getURLsProc $ \C.ClosedStream out C.Inherited ->
     pure $ out .| decodeUtf8C
     -- FIXME how to make sure the process terminates?
     --C.waitForStreamingProcess cph
