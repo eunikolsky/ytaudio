@@ -37,7 +37,7 @@ instance MimeRender MP3 ByteString where
 
 type API
   = "feed" :> Capture "channelid" Text :> Get '[PlainText] Text
-  :<|> "yt" :> Capture "videoid" Text :> StreamGet NoFraming MP3 (ConduitT () ByteString IO ())
+  :<|> "yt" :> Capture "videoid" Text :> StreamGet NoFraming MP3 (Headers '[Header "Content-Disposition" Text] (ConduitT () ByteString IO ()))
 
 startApp :: IO ()
 startApp = run 8080 app
@@ -64,7 +64,7 @@ getFeed _channelId = liftIO $ T.readFile "samplefeed.rss"
 -- From https://github.com/xxcodianxx/youtube-dl-web/blob/master/server/src/util/stream.py#L59-L68
 -- and verbose output of `yt-dlp`
 -- https://github.com/yt-dlp/yt-dlp/blob/master/yt_dlp/postprocessor/ffmpeg.py
-streamAudio :: Text -> Handler (ConduitT () ByteString IO ())
+streamAudio :: Text -> Handler (Headers '[Header "Content-Disposition" Text] (ConduitT () ByteString IO ()))
 streamAudio videoId =
   -- https://github.com/haskell-servant/servant/blob/master/servant-conduit/example/Main.hs
   let getBestAudioProc = proc "yt-dlp"
@@ -72,11 +72,10 @@ streamAudio videoId =
       encodeToMP3Proc = proc "ffmpeg"
         ["-hide_banner", "-v", "warning", "-i", "pipe:", "-vn", "-acodec", "libmp3lame", "-b:a", "96k"
         , "-movflags", "+faststart", "-metadata", "genre=Podcast", "-f", "mp3", "pipe:"]
-
   in liftIO $ do
     (C.ClosedStream, bestAudioOut, C.Inherited, _) <- C.streamingProcess getBestAudioProc
     (C.UseProvidedHandle, encodedMP3Out, C.Inherited, _) <- C.streamingProcess encodeToMP3Proc { std_in = UseHandle bestAudioOut }
-    pure $ encodedMP3Out
+    pure $ addHeader ("attachment; filename=\"" <> videoId <> ".mp3\"") encodedMP3Out
     -- FIXME how to make sure the process terminates?
     --C.waitForStreamingProcess cph
 
