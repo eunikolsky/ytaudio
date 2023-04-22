@@ -9,8 +9,9 @@ module Lib
     ) where
 
 import Conduit
-import Control.Concurrent
-import Data.Conduit.List as C
+--import Control.Concurrent
+--import Data.Conduit.List qualified as C
+import Data.Conduit.Process qualified as C
 import Data.List (find)
 import Data.Text (Text)
 import Data.Text qualified as T
@@ -19,6 +20,7 @@ import Network.Wai
 import Network.Wai.Handler.Warp
 import Servant
 import Servant.Conduit ()
+import System.Process
 import Text.XML.Light
 
 type API
@@ -51,9 +53,17 @@ getFeed _channelId = liftIO $ T.readFile "samplefeed.rss"
 -- and verbose output of `yt-dlp`
 -- https://github.com/yt-dlp/yt-dlp/blob/master/yt_dlp/postprocessor/ffmpeg.py
 streamAudio :: Text -> Handler (ConduitT () Text IO ())
-streamAudio videoId = pure $
+streamAudio videoId =
   -- https://github.com/haskell-servant/servant/blob/master/servant-conduit/example/Main.hs
-  C.sourceList ["requested audio for ", "video id " <> videoId] .| C.mapM (<$ threadDelay 1_000_000)
+  let getURLsProc =
+    -- proc "yt-dlp" ["-f", "ba", "--no-progress", "https://www.youtube.com/watch?v=" <> T.unpack videoId, "--simulate", "--print", "urls"]
+        shell $ "echo foo; sleep 1; echo bar '" <> T.unpack videoId <> "'"
+  in liftIO $ do
+    (C.ClosedStream,  out, C.Inherited, _phandle) <- C.streamingProcess getURLsProc
+    --C.withCheckedProcessCleanup getURLsProc $ \C.ClosedStream out C.Inherited ->
+    pure $ out .| decodeUtf8C
+    -- FIXME how to make sure the process terminates?
+    --C.waitForStreamingProcess cph
 
 data YTEntry = YTEntry
   { yteId :: !Text

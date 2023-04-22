@@ -1,6 +1,6 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.35.1.
+-- This file has been generated from package.yaml by hpack version 0.35.2.
 --
 -- see: https://github.com/sol/hpack
 
@@ -38,6 +38,8 @@ library
   build-depends:
       base >=4.7 && <5
     , conduit
+    , conduit-extra
+    , process
     , servant-conduit
     , servant-server
     , text
@@ -60,6 +62,8 @@ executable ytaudio-exe
   build-depends:
       base
     , conduit
+    , conduit-extra
+    , process
     , servant-conduit
     , servant-server
     , text
@@ -85,9 +89,11 @@ test-suite ytaudio-test
       aeson
     , base
     , conduit
+    , conduit-extra
     , hspec
     , hspec-wai
     , hspec-wai-json
+    , process
     , servant-conduit
     , servant-server
     , text
