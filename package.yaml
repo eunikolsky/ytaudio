@@ -21,17 +21,6 @@ description:         Please see the README on GitHub at <https://github.com/gith
 
 dependencies:
 - base >= 4.7 && < 5
-- bytestring
-- conduit
-- conduit-extra
-- http-media
-- process
-- servant-conduit
-- servant-server
-- text
-- wai
-- warp
-- xml
 
 ghc-options:
 - -Wall
@@ -58,6 +47,18 @@ default-extensions:
 
 library:
   source-dirs: src
+  dependencies:
+  - bytestring
+  - conduit
+  - conduit-extra
+  - http-media
+  - process
+  - servant-conduit
+  - servant-server
+  - text
+  - wai
+  - warp
+  - xml
 
 executables:
   ytaudio-exe:
