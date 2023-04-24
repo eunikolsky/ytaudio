@@ -88,7 +88,7 @@ streamAudio videoId =
       encodeToMP3Proc = proc "ffmpeg"
         ["-hide_banner", "-v", "warning", "-i", "pipe:", "-vn", "-acodec", "libmp3lame", "-b:a", "96k"
         , "-movflags", "+faststart", "-metadata", "genre=Podcast", "-f", "mp3", "pipe:"]
-  in liftIO $ do
+  in do
     (C.ClosedStream, bestAudioOut, C.Inherited, _) <- C.streamingProcess getBestAudioProc
     (C.UseProvidedHandle, encodedMP3Out, C.Inherited, _) <- C.streamingProcess encodeToMP3Proc { std_in = UseHandle bestAudioOut }
     pure $ addFilenameHeader videoId encodedMP3Out
