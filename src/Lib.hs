@@ -42,12 +42,14 @@ instance MimeRender MP3 () where
 
 type Head = Verb 'HEAD 200
 
+type SourceT o m = ConduitT () o m ()
+
 type API
   = "feed" :> Capture "channelid" Text :> Get '[PlainText] Text
   -- HEAD needs to be handled explicitly so that we don't start the subprocesses
   -- and not log errors from ffmpeg about "Broken pipe"
   :<|> "yt" :> Capture "videoid" Text :> Head '[MP3] (Headers '[Header "Content-Disposition" Text] ())
-  :<|> "yt" :> Capture "videoid" Text :> StreamGet NoFraming MP3 (Headers '[Header "Content-Disposition" Text] (ConduitT () ByteString IO ()))
+  :<|> "yt" :> Capture "videoid" Text :> StreamGet NoFraming MP3 (Headers '[Header "Content-Disposition" Text] (SourceT ByteString (ResourceT IO)))
 
 startApp :: IO ()
 startApp = run 8080 app
@@ -80,20 +82,34 @@ addFilenameHeader videoId = addHeader ("attachment; filename=\"" <> videoId <> "
 -- From https://github.com/xxcodianxx/youtube-dl-web/blob/master/server/src/util/stream.py#L59-L68
 -- and verbose output of `yt-dlp`
 -- https://github.com/yt-dlp/yt-dlp/blob/master/yt_dlp/postprocessor/ffmpeg.py
-streamAudio :: Text -> Handler (Headers '[Header "Content-Disposition" Text] (ConduitT () ByteString IO ()))
+streamAudio :: Text -> Handler (Headers '[Header "Content-Disposition" Text] (SourceT ByteString (ResourceT IO)))
 streamAudio videoId =
   -- https://github.com/haskell-servant/servant/blob/master/servant-conduit/example/Main.hs
-  let getBestAudioProc = proc "yt-dlp"
-        ["-f", "ba", "--quiet", "https://www.youtube.com/watch?v=" <> T.unpack videoId, "-o", "-"]
-      encodeToMP3Proc = proc "ffmpeg"
-        ["-hide_banner", "-v", "warning", "-i", "pipe:", "-vn", "-acodec", "libmp3lame", "-b:a", "96k"
-        , "-movflags", "+faststart", "-metadata", "genre=Podcast", "-f", "mp3", "pipe:"]
-  in do
-    (C.ClosedStream, bestAudioOut, C.Inherited, _) <- C.streamingProcess getBestAudioProc
-    (C.UseProvidedHandle, encodedMP3Out, C.Inherited, _) <- C.streamingProcess encodeToMP3Proc { std_in = UseHandle bestAudioOut }
+  --let getBestAudioProc = proc "yt-dlp"
+        --["-f", "ba", "--quiet", "https://www.youtube.com/watch?v=" <> T.unpack videoId, "-o", "-"]
+      --encodeToMP3Proc = proc "ffmpeg"
+        --["-hide_banner", "-v", "warning", "-i", "pipe:", "-vn", "-acodec", "libmp3lame", "-b:a", "96k"
+        --, "-movflags", "+faststart", "-metadata", "genre=Podcast", "-f", "mp3", "pipe:"]
+  -- Handler = ExceptT ServerError IO
+  let test = shell "echo foo; sleep 1; echo bar; >&2 echo terminating"
+  in liftIO $ runResourceT $ do
+    --(C.ClosedStream, bestAudioOut, C.Inherited, _) <- C.streamingProcess getBestAudioProc
+    --(C.UseProvidedHandle, encodedMP3Out, C.Inherited, _) <- C.streamingProcess encodeToMP3Proc { std_in = UseHandle bestAudioOut }
+
+    -- https://github.com/snoyberg/conduit/issues/343#issuecomment-512242524
+    let ack = mkAcquire
+          (do
+            (C.ClosedStream, encodedMP3Out, C.Inherited, cph) <- C.streamingProcess test
+            pure (encodedMP3Out, cph)
+          )
+          (\(_out, cph) -> do
+            -- FIXME how to make sure the process terminates?
+            exitCode <- C.waitForStreamingProcess cph
+            putStrLn $ "exit code: " <> show exitCode
+          )
+    (_releaseKey, (encodedMP3Out, _)) <- allocateAcquire ack
+
     pure $ addFilenameHeader videoId encodedMP3Out
-    -- FIXME how to make sure the process terminates?
-    --C.waitForStreamingProcess cph
 
 data YTEntry = YTEntry
   { yteId :: !Text
