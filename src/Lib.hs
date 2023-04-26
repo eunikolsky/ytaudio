@@ -91,25 +91,25 @@ streamAudio videoId =
         --["-hide_banner", "-v", "warning", "-i", "pipe:", "-vn", "-acodec", "libmp3lame", "-b:a", "96k"
         --, "-movflags", "+faststart", "-metadata", "genre=Podcast", "-f", "mp3", "pipe:"]
   -- Handler = ExceptT ServerError IO
-  let test = shell "echo foo; sleep 1; echo bar; >&2 echo terminating"
-  in liftIO $ runResourceT $ do
+  let test = shell $ "echo foo; sleep 1; echo bar \"" <> T.unpack videoId <> "\"; >&2 echo terminating"
+  in pure . addFilenameHeader videoId $
     --(C.ClosedStream, bestAudioOut, C.Inherited, _) <- C.streamingProcess getBestAudioProc
     --(C.UseProvidedHandle, encodedMP3Out, C.Inherited, _) <- C.streamingProcess encodeToMP3Proc { std_in = UseHandle bestAudioOut }
+    bracketP
+      (do
+        (C.ClosedStream, encodedMP3Out, C.Inherited, cph) <- C.streamingProcess test
+        pure (encodedMP3Out, cph)
+      )
+      (\(_out, cph) -> do
+        -- FIXME how to make sure the process terminates?
+        exitCode <- C.waitForStreamingProcess cph
+        putStrLn $ "exit code: " <> show exitCode
+      )
+      (\(encodedMP3Out, _) -> do
+        encodedMP3Out
+      )
 
     -- https://github.com/snoyberg/conduit/issues/343#issuecomment-512242524
-    let ack = mkAcquire
-          (do
-            (C.ClosedStream, encodedMP3Out, C.Inherited, cph) <- C.streamingProcess test
-            pure (encodedMP3Out, cph)
-          )
-          (\(_out, cph) -> do
-            -- FIXME how to make sure the process terminates?
-            exitCode <- C.waitForStreamingProcess cph
-            putStrLn $ "exit code: " <> show exitCode
-          )
-    (_releaseKey, (encodedMP3Out, _)) <- allocateAcquire ack
-
-    pure $ addFilenameHeader videoId encodedMP3Out
 
 data YTEntry = YTEntry
   { yteId :: !Text
