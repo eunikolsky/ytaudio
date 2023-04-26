@@ -91,7 +91,7 @@ streamAudio videoId =
         --["-hide_banner", "-v", "warning", "-i", "pipe:", "-vn", "-acodec", "libmp3lame", "-b:a", "96k"
         --, "-movflags", "+faststart", "-metadata", "genre=Podcast", "-f", "mp3", "pipe:"]
   -- Handler = ExceptT ServerError IO
-  let test = shell $ "echo foo; sleep 1; echo bar \"" <> T.unpack videoId <> "\"; >&2 echo terminating"
+  let test = shell $ "echo foo; sleep 2; echo bar \"" <> T.unpack videoId <> "\"; exec >&-; sleep 2; >&2 echo terminating"
   in pure . addFilenameHeader videoId $
     --(C.ClosedStream, bestAudioOut, C.Inherited, _) <- C.streamingProcess getBestAudioProc
     --(C.UseProvidedHandle, encodedMP3Out, C.Inherited, _) <- C.streamingProcess encodeToMP3Proc { std_in = UseHandle bestAudioOut }
@@ -102,6 +102,7 @@ streamAudio videoId =
       )
       (\(_out, cph) -> do
         -- FIXME how to make sure the process terminates?
+        putStrLn $ "exiting?"
         exitCode <- C.waitForStreamingProcess cph
         putStrLn $ "exit code: " <> show exitCode
       )
