@@ -42,13 +42,15 @@ check-test:
 .PHONY:
 check-hlint: check-hlint-other check-hlint-program
 
+HLINT_ARGS = -j4 -q
+
 .PHONY:
 check-hlint-program:
-	hlint -j4 -q -h program/.hlint.yaml program
+	hlint $(HLINT_ARGS) -h program/.hlint.yaml program
 
 .PHONY:
 check-hlint-other:
-	hlint -j4 -q src test
+	hlint $(HLINT_ARGS) src test
 
 # GNU ln supports the `-r` option to create a relative symlink
 .PHONY:
