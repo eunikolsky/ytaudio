@@ -34,7 +34,7 @@ buildd:
 buildfw:
 	@stack build --fast --file-watch
 
+# GNU ln supports the `-r` option to create a relative symlink
 .PHONY:
 install-precommit-hook:
-	# GNU ln supports the `-r` option to create a relative symlink
-	gln -srv .git-pre-commit .git/hooks/pre-commit
+	@gln -srvf .git-pre-commit .git/hooks/pre-commit
