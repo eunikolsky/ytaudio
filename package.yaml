@@ -69,7 +69,7 @@ library:
 executables:
   ytaudio:
     main:                Main.hs
-    source-dirs:         app
+    source-dirs:         program
     ghc-options:
     - -threaded
     - -rtsopts

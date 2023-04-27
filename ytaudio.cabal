@@ -57,7 +57,7 @@ executable ytaudio
   other-modules:
       Paths_ytaudio
   hs-source-dirs:
-      app
+      program
   default-extensions:
       BangPatterns
       BinaryLiterals
