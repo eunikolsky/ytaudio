@@ -41,7 +41,7 @@ library:
   source-dirs: src
 
 executables:
-  ytaudio-exe:
+  ytaudio:
     main:                Main.hs
     source-dirs:         app
     ghc-options:
