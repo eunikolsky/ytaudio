@@ -42,7 +42,7 @@ check-test:
 .PHONY:
 check-hlint: check-hlint-other check-hlint-program
 
-HLINT_ARGS = -j4 -q
+HLINT_ARGS = -j --no-summary
 
 .PHONY:
 check-hlint-program:
