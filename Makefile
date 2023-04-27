@@ -17,11 +17,11 @@ check-hlint: check-hlint-other check-hlint-program
 
 .PHONY:
 check-hlint-program:
-	hlint -j4 -h program/.hlint.yaml program
+	hlint -j4 -q -h program/.hlint.yaml program
 
 .PHONY:
 check-hlint-other:
-	hlint -j4 src test
+	hlint -j4 -q src test
 
 .PHONY:
 testd:
