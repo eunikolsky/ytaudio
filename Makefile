@@ -1,8 +1,7 @@
 MAIN_TEST_TARGET = ytaudio:test:ytaudio-test
 
 .PHONY:
-check: check-build check-test
-# FIXME add check-hlint
+check: check-build check-test check-hlint
 
 .PHONY:
 check-build:
@@ -11,6 +10,18 @@ check-build:
 .PHONY:
 check-test:
 	stack --verbosity error test --fast --ta='-f silent' $(MAIN_TEST_TARGET)
+
+
+.PHONY:
+check-hlint: check-hlint-other check-hlint-program
+
+.PHONY:
+check-hlint-program:
+	hlint -j4 -h program/.hlint.yaml program
+
+.PHONY:
+check-hlint-other:
+	hlint -j4 src test
 
 .PHONY:
 testd:
