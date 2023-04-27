@@ -1,27 +1,8 @@
 MAIN_TEST_TARGET = ytaudio:test:ytaudio-test
 
-.PHONY:
-check: check-build check-test check-hlint
+.DEFAULT_GOAL := check
 
-.PHONY:
-check-build:
-	stack --verbosity error build --fast
-
-.PHONY:
-check-test:
-	stack --verbosity error test --fast --ta='-f silent' $(MAIN_TEST_TARGET)
-
-
-.PHONY:
-check-hlint: check-hlint-other check-hlint-program
-
-.PHONY:
-check-hlint-program:
-	hlint -j4 -q -h program/.hlint.yaml program
-
-.PHONY:
-check-hlint-other:
-	hlint -j4 -q src test
+### --8<-- test and build actions --8<-- ###
 
 .PHONY:
 testd:
@@ -44,6 +25,30 @@ buildd:
 .PHONY:
 buildfw:
 	@stack build --fast --file-watch
+
+### --8<-- git hook check actions --8<-- ###
+
+.PHONY:
+check: check-build check-test check-hlint
+
+.PHONY:
+check-build:
+	stack --verbosity error build --fast
+
+.PHONY:
+check-test:
+	stack --verbosity error test --fast --ta='-f silent' $(MAIN_TEST_TARGET)
+
+.PHONY:
+check-hlint: check-hlint-other check-hlint-program
+
+.PHONY:
+check-hlint-program:
+	hlint -j4 -q -h program/.hlint.yaml program
+
+.PHONY:
+check-hlint-other:
+	hlint -j4 -q src test
 
 # GNU ln supports the `-r` option to create a relative symlink
 .PHONY:
