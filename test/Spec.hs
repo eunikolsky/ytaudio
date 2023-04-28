@@ -1,11 +1,14 @@
 module Main (main) where
 
+import Domain.YoutubeFeedSpec qualified (spec)
 import Lib (app)
 import Test.Hspec
 import Test.Hspec.Wai
 
 main :: IO ()
-main = hspec spec
+main = hspec $ do
+  Domain.YoutubeFeedSpec.spec
+  spec
 
 spec :: Spec
 spec = with (return app) $ do

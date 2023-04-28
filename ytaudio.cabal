@@ -25,6 +25,7 @@ source-repository head
 
 library
   exposed-modules:
+      Domain.YoutubeFeed
       Lib
   other-modules:
       Paths_ytaudio
@@ -81,6 +82,7 @@ test-suite ytaudio-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      Domain.YoutubeFeedSpec
       Paths_ytaudio
   hs-source-dirs:
       test
