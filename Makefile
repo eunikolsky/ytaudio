@@ -26,10 +26,18 @@ buildd:
 buildfw:
 	@stack build --fast --file-watch --ghc-options='-freverse-errors'
 
+.PHONY:
+format:
+	@fourmolu -q -i $$(git ls-files '*.hs')
+
 ### --8<-- git hook check actions --8<-- ###
 
 .PHONY:
-check: check-build check-test check-hlint
+check: check-format check-build check-test check-hlint
+
+.PHONY:
+check-format:
+	@fourmolu -q -m check $$(git ls-files '*.hs')
 
 .PHONY:
 check-build:
