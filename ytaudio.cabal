@@ -1,6 +1,6 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.35.1.
+-- This file has been generated from package.yaml by hpack version 0.35.2.
 --
 -- see: https://github.com/sol/hpack
 
@@ -30,7 +30,20 @@ library
       Paths_ytaudio
   hs-source-dirs:
       src
-  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
+  default-extensions:
+      BangPatterns
+      BinaryLiterals
+      DeriveGeneric
+      DerivingStrategies
+      GeneralizedNewtypeDeriving
+      ImportQualifiedPost
+      MultiWayIf
+      NamedFieldPuns
+      NumericUnderscores
+      OverloadedStrings
+      ScopedTypeVariables
+      TypeApplications
+  ghc-options: -Wall -Wcompat -Widentities -fhide-source-paths -Wnoncanonical-monad-instances -Werror=incomplete-record-updates -Werror=incomplete-patterns -Werror=incomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wmissing-deriving-strategies -Wunused-packages -Werror=missing-fields -Werror=missing-methods -Wpartial-fields -Wredundant-constraints -Werror=empty-enumerations -Werror=missing-home-modules
   build-depends:
       aeson
     , base >=4.7 && <5
@@ -39,19 +52,28 @@ library
     , warp
   default-language: Haskell2010
 
-executable ytaudio-exe
+executable ytaudio
   main-is: Main.hs
   other-modules:
       Paths_ytaudio
   hs-source-dirs:
-      app
-  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
+      program
+  default-extensions:
+      BangPatterns
+      BinaryLiterals
+      DeriveGeneric
+      DerivingStrategies
+      GeneralizedNewtypeDeriving
+      ImportQualifiedPost
+      MultiWayIf
+      NamedFieldPuns
+      NumericUnderscores
+      OverloadedStrings
+      ScopedTypeVariables
+      TypeApplications
+  ghc-options: -Wall -Wcompat -Widentities -fhide-source-paths -Wnoncanonical-monad-instances -Werror=incomplete-record-updates -Werror=incomplete-patterns -Werror=incomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wmissing-deriving-strategies -Wunused-packages -Werror=missing-fields -Werror=missing-methods -Wpartial-fields -Wredundant-constraints -Werror=empty-enumerations -Werror=missing-home-modules -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      aeson
-    , base
-    , servant-server
-    , wai
-    , warp
+      base
     , ytaudio
   default-language: Haskell2010
 
@@ -62,15 +84,25 @@ test-suite ytaudio-test
       Paths_ytaudio
   hs-source-dirs:
       test
-  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
+  default-extensions:
+      BangPatterns
+      BinaryLiterals
+      DeriveGeneric
+      DerivingStrategies
+      GeneralizedNewtypeDeriving
+      ImportQualifiedPost
+      MultiWayIf
+      NamedFieldPuns
+      NumericUnderscores
+      OverloadedStrings
+      ScopedTypeVariables
+      TypeApplications
+  ghc-options: -Wall -Wcompat -Widentities -fhide-source-paths -Wnoncanonical-monad-instances -Werror=incomplete-record-updates -Werror=incomplete-patterns -Werror=incomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wmissing-deriving-strategies -Wunused-packages -Werror=missing-fields -Werror=missing-methods -Wpartial-fields -Wredundant-constraints -Werror=empty-enumerations -Werror=missing-home-modules -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       aeson
     , base
     , hspec
     , hspec-wai
     , hspec-wai-json
-    , servant-server
-    , wai
-    , warp
     , ytaudio
   default-language: Haskell2010

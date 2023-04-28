@@ -1,0 +1,6 @@
+#!/bin/sh
+
+# git `pre-commit` hook to run various checks before a commit
+# install it with `make install-precommit-hook`
+
+make -j4 check

@@ -21,29 +21,55 @@ description:         Please see the README on GitHub at <https://github.com/gith
 
 dependencies:
 - base >= 4.7 && < 5
-- aeson
-- servant-server
-- wai
-- warp
 
 ghc-options:
 - -Wall
 - -Wcompat
 - -Widentities
-- -Wincomplete-record-updates
-- -Wincomplete-uni-patterns
+- -fhide-source-paths
+- -Wnoncanonical-monad-instances
+- -Werror=incomplete-record-updates
+- -Werror=incomplete-patterns
+- -Werror=incomplete-uni-patterns
 - -Wmissing-export-lists
 - -Wmissing-home-modules
+- -Wmissing-deriving-strategies
+- -Wunused-packages
+- -Werror=missing-fields
+- -Werror=missing-methods
 - -Wpartial-fields
 - -Wredundant-constraints
+- -Werror=empty-enumerations
+- -Werror=missing-home-modules
+
+default-extensions:
+- BangPatterns
+- BinaryLiterals
+- DeriveGeneric
+- DerivingStrategies
+- GeneralizedNewtypeDeriving
+- ImportQualifiedPost
+- MultiWayIf
+- NamedFieldPuns
+- NumericUnderscores
+- OverloadedStrings
+- ScopedTypeVariables
+- TypeApplications
+# most of the list is copied from summoner
+# https://github.com/kowainik/summoner/blob/main/summoner-cli/examples/stack-full/stack-full.cabal
 
 library:
   source-dirs: src
+  dependencies:
+  - aeson
+  - servant-server
+  - wai
+  - warp
 
 executables:
-  ytaudio-exe:
+  ytaudio:
     main:                Main.hs
-    source-dirs:         app
+    source-dirs:         program
     ghc-options:
     - -threaded
     - -rtsopts
