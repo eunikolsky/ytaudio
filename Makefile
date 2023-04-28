@@ -37,7 +37,7 @@ check: check-format check-build check-test check-hlint
 
 .PHONY:
 check-format:
-	@fourmolu -q -m check $$(git ls-files '*.hs')
+	fourmolu -q -m check $$(git ls-files '*.hs')
 
 .PHONY:
 check-build:
