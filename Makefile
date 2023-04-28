@@ -6,21 +6,23 @@ MAIN_TEST_TARGET = ytaudio:test:ytaudio-test
 
 .PHONY:
 testd:
-	@ghcid -c 'HSPEC_FORMAT=failed-examples stack ghci --test --main-is $(MAIN_TEST_TARGET) --ghci-options=-fobject-code' -T main
+	@echo package.yaml | entr -rs "ghcid -c 'HSPEC_FORMAT=failed-examples stack ghci --test --main-is $(MAIN_TEST_TARGET) --ghci-options=-fobject-code' -T main"
 
 # run like this: `m testfw-ext MATCH=InputParser SEED=401874497`
 # both variables are optional
 .PHONY:
 testd-ext:
-	@ghcid --command "stack ghci --test --main-is $(MAIN_TEST_TARGET) --ghci-options=-fobject-code" --test ":main $${MATCH:+--match \"$${MATCH}\"} $${SEED:+--seed $${SEED}}"
+	@echo package.yaml | entr -rs "ghcid --command \"stack ghci --test --main-is $(MAIN_TEST_TARGET) --ghci-options=-fobject-code\" --test \":main $${MATCH:+--match \"$${MATCH}\"} $${SEED:+--seed $${SEED}}\""
 
 .PHONY:
 testfw:
 	@stack test --fast --file-watch --ghc-options='-freverse-errors' $(MAIN_TEST_TARGET) $${MATCH:+--ta="--match \"/$${MATCH}/\""}
 
+# `ghcid` doesn't track changes in `package.yaml`, so we need to restart it
+# this is done externally by `entr`
 .PHONY:
 buildd:
-	@ghcid -c 'stack ghci'
+	@echo package.yaml | entr -rs "ghcid -c 'stack ghci'"
 
 .PHONY:
 buildfw:
