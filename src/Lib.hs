@@ -1,28 +1,16 @@
 {-# LANGUAGE DataKinds #-}
-{-# LANGUAGE TemplateHaskell #-}
-{-# LANGUAGE TypeOperators #-}
 
 module Lib
   ( startApp
   , app
   ) where
 
-import Data.Aeson
-import Data.Aeson.TH
+import Data.Text (Text)
 import Network.Wai
 import Network.Wai.Handler.Warp
 import Servant
 
-data User = User
-  { userId :: Int
-  , userFirstName :: String
-  , userLastName :: String
-  }
-  deriving stock (Eq, Show)
-
-$(deriveJSON defaultOptions ''User)
-
-type API = "users" :> Get '[JSON] [User]
+type API = Get '[PlainText] Text
 
 startApp :: IO ()
 startApp = run 8080 app
@@ -34,10 +22,7 @@ api :: Proxy API
 api = Proxy
 
 server :: Server API
-server = return users
+server = getRoot
 
-users :: [User]
-users =
-  [ User 1 "Isaac" "Newton"
-  , User 2 "Albert" "Einstein"
-  ]
+getRoot :: Handler Text
+getRoot = return "hello world"

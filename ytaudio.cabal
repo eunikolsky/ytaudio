@@ -45,9 +45,9 @@ library
       TypeApplications
   ghc-options: -Wall -Wcompat -Widentities -fhide-source-paths -Wnoncanonical-monad-instances -Werror=incomplete-record-updates -Werror=incomplete-patterns -Werror=incomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wmissing-deriving-strategies -Wunused-packages -Werror=missing-fields -Werror=missing-methods -Wpartial-fields -Wredundant-constraints -Werror=empty-enumerations -Werror=missing-home-modules
   build-depends:
-      aeson
-    , base >=4.7 && <5
+      base >=4.7 && <5
     , servant-server
+    , text
     , wai
     , warp
   default-language: Haskell2010

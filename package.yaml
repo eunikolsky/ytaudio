@@ -61,8 +61,8 @@ default-extensions:
 library:
   source-dirs: src
   dependencies:
-  - aeson
   - servant-server
+  - text
   - wai
   - warp
 
