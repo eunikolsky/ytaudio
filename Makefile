@@ -16,7 +16,7 @@ testd-ext:
 
 .PHONY:
 testfw:
-	@stack test --fast --file-watch $(MAIN_TEST_TARGET) $${MATCH:+--ta="--match \"/$${MATCH}/\""}
+	@stack test --fast --file-watch --ghc-options='-freverse-errors' $(MAIN_TEST_TARGET) $${MATCH:+--ta="--match \"/$${MATCH}/\""}
 
 .PHONY:
 buildd:
@@ -24,7 +24,7 @@ buildd:
 
 .PHONY:
 buildfw:
-	@stack build --fast --file-watch
+	@stack build --fast --file-watch --ghc-options='-freverse-errors'
 
 ### --8<-- git hook check actions --8<-- ###
 
