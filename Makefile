@@ -4,25 +4,30 @@ MAIN_TEST_TARGET = ytaudio:test:ytaudio-test
 
 ### --8<-- test and build actions --8<-- ###
 
+# `echo package.yaml stack.yaml` prints one line, and `entr` doesn't understand that
+# `print (-l)` doesn't work in `/bin/sh`
+# so `ls -1` it is
+ENTR_WATCHED_FILES = ls -1 package.yaml stack.yaml
+
 .PHONY:
 testd:
-	@echo package.yaml | entr -rs "ghcid -c 'HSPEC_FORMAT=failed-examples stack ghci --test --main-is $(MAIN_TEST_TARGET) --ghci-options=-fobject-code' -T main"
+	@$(ENTR_WATCHED_FILES) | entr -rs "ghcid -c 'HSPEC_FORMAT=failed-examples stack ghci --test --main-is $(MAIN_TEST_TARGET) --ghci-options=-fobject-code' -T main"
 
 # run like this: `m testfw-ext MATCH=InputParser SEED=401874497`
 # both variables are optional
 .PHONY:
 testd-ext:
-	@echo package.yaml | entr -rs "ghcid --command \"stack ghci --test --main-is $(MAIN_TEST_TARGET) --ghci-options=-fobject-code\" --test \":main $${MATCH:+--match \"$${MATCH}\"} $${SEED:+--seed $${SEED}}\""
+	@$(ENTR_WATCHED_FILES) | entr -rs "ghcid --command \"stack ghci --test --main-is $(MAIN_TEST_TARGET) --ghci-options=-fobject-code\" --test \":main $${MATCH:+--match \"$${MATCH}\"} $${SEED:+--seed $${SEED}}\""
 
 .PHONY:
 testfw:
 	@stack test --fast --file-watch --ghc-options='-freverse-errors' $(MAIN_TEST_TARGET) $${MATCH:+--ta="--match \"/$${MATCH}/\""}
 
-# `ghcid` doesn't track changes in `package.yaml`, so we need to restart it
-# this is done externally by `entr`
+# `ghcid` doesn't track changes in package description files (`package.yaml`, `stack.yaml`),
+# so we need to restart it manually: this is done externally by `entr`
 .PHONY:
 buildd:
-	@echo package.yaml | entr -rs "ghcid -c 'stack ghci'"
+	@$(ENTR_WATCHED_FILES) | entr -rs "ghcid -c 'stack ghci'"
 
 .PHONY:
 buildfw:
