@@ -61,8 +61,12 @@ default-extensions:
 library:
   source-dirs: src
   dependencies:
+  - containers
+  - rss-conduit
   - servant-server
   - text
+  - time
+  - uri-bytestring
   - wai
   - warp
 
@@ -88,8 +92,10 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - base
-    - ytaudio
+    - containers
     - hspec
     - hspec-wai
-    - hspec-wai-json
-    - aeson
+    - rss-conduit
+    - time
+    - uri-bytestring
+    - ytaudio

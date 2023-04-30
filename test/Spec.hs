@@ -4,10 +4,12 @@ import Domain.YoutubeFeedSpec qualified (spec)
 import Lib (app)
 import Test.Hspec
 import Test.Hspec.Wai
+import Usecases.AudioFeedSpec qualified (spec)
 
 main :: IO ()
 main = hspec $ do
   Domain.YoutubeFeedSpec.spec
+  Usecases.AudioFeedSpec.spec
   spec
 
 spec :: Spec
