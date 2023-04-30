@@ -66,9 +66,12 @@ library:
   - servant-server
   - text
   - time
+  - timerep
+  - unicode-show
   - uri-bytestring
   - wai
   - warp
+  - xml
 
 executables:
   ytaudio:
@@ -81,6 +84,11 @@ executables:
     dependencies:
     - base
     - ytaudio
+
+# note: this file is only needed for tests, however the `data-files` directive
+# has to be used globally only; the difference between this and
+# `extra-source-files` is not clear
+data-files:          test/Domain/videos.xml
 
 tests:
   ytaudio-test:
@@ -95,7 +103,9 @@ tests:
     - containers
     - hspec
     - hspec-wai
+    - raw-strings-qq
     - rss-conduit
+    - text
     - time
     - uri-bytestring
     - ytaudio
