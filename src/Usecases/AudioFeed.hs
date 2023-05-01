@@ -32,17 +32,17 @@ import URI.ByteString
  -}
 
 mkRssDoc :: Dom.AudioFeed -> RssDocument'
-mkRssDoc Dom.AudioFeed{afTitle, afDescription, afLink, afItems} =
+mkRssDoc Dom.AudioFeed{afTitle, afLink, afItems} =
   RssDocument
     { -- fields dependent on `Dom.AudioFeed`
       channelTitle = afTitle
     , channelLink = urlToURI afLink
-    , channelDescription = afDescription
     , channelItems = mkRssItem <$> afItems
     , -- static fields
       documentVersion = makeVersion [2, 0]
     , -- unused fields
-      channelLanguage = ""
+      channelDescription = ""
+    , channelLanguage = ""
     , channelCopyright = ""
     , channelManagingEditor = ""
     , channelWebmaster = ""

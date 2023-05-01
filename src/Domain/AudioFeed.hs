@@ -10,11 +10,13 @@ import Text.Show.Unicode
 {- | Model of an audio feed with the data that can be put into RSS and can be
 parsed from a Youtube feed.
 
+TODO turns out channel's description is not available in the youtube feed; we
+can probably get it from `yt-dlp`, but then it needs to be cached.
+
 See the RSS 2.0 specification at <https://www.rssboard.org/rss-specification>.
 -}
 data AudioFeed = AudioFeed
   { afTitle :: !Text
-  , afDescription :: !Text
   , afLink :: !Text
   -- ^ URL of the original youtube channel
   , afItems :: ![AudioFeedItem]
@@ -28,8 +30,6 @@ instance Show AudioFeed where
     mconcat
       [ "AudioFeed(title="
       , ushow afTitle
-      , ", description="
-      , ushow afDescription
       , ", link="
       , show afLink
       , ", items="

@@ -36,9 +36,6 @@ feed :: Dom.AudioFeed
 feed =
   Dom.AudioFeed
     { afTitle = "Yakov Fain"
-    , -- TODO turns out channel's description is not available in the feed; we can
-      -- probably get it from `yt-dlp`, but then it needs to be cached
-      afDescription = ""
     , afLink = "https://www.youtube.com/channel/UCnExw5tVdA3TJeb4kmCd-JQ"
     , afItems =
         [ Dom.AudioFeedItem

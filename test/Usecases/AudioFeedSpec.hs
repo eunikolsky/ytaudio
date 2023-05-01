@@ -27,7 +27,6 @@ audioFeed :: Dom.AudioFeed
 audioFeed =
   Dom.AudioFeed
     { afTitle = "привет"
-    , afDescription = "multiline\ndescription"
     , afLink = "http://youtube.com/user/123"
     , afItems =
         [ Dom.AudioFeedItem
@@ -46,7 +45,7 @@ rssDoc =
     { documentVersion = makeVersion [2, 0]
     , channelTitle = "привет"
     , channelLink = RssURI [uri|http://youtube.com/user/123|]
-    , channelDescription = "multiline\ndescription"
+    , channelDescription = ""
     , channelLanguage = ""
     , channelCopyright = ""
     , channelManagingEditor = ""

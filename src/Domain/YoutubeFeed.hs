@@ -39,7 +39,6 @@ parseAtom contents = do
   pure
     Dom.AudioFeed
       { afTitle
-      , afDescription = ""
       , afLink
       , afItems = items
       }
