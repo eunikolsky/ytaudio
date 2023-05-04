@@ -3,22 +3,53 @@
 module Usecases.AudioFeedSpec (spec) where
 
 import Data.Set qualified as S
+import Data.Text (Text)
 import Data.Time.Clock
 import Data.Version (makeVersion)
 import Domain.AudioFeed hiding (AudioFeed)
 import Domain.AudioFeed qualified as Dom
 import Domain.AudioFeed.Item hiding (AudioFeedItem)
 import Domain.AudioFeed.Item qualified as Dom
+import Polysemy
 import Test.Hspec
 import Text.RSS.Types
 import URI.ByteString.QQ
-import Usecases.AudioFeed
+import Usecases.AudioFeed qualified as UC
+import Usecases.Youtube qualified as UC
 
 spec :: Spec
 spec = do
-  describe "mkRssDoc" $ do
-    it "creates RSS doc from AudioFeed" $ do
-      mkRssDoc audioFeed `shouldBe` rssDoc
+  describe "getAudioFeed" $ do
+    it "creates RSS doc for youtube channel" $ do
+      runDownloadAudioFeed audioFeed channelId `shouldBe` Just rssDoc
+
+{- | Runs the `downloadAudioFeed` usecase purely, mocking the youtube downloader
+to return an empty string and then using `audioFeed` as the parsed value.
+-}
+runDownloadAudioFeed :: Dom.AudioFeed -> UC.ChannelId -> Maybe RssDocument'
+runDownloadAudioFeed feed =
+  run
+    . runYoutubePure testDownloadedText
+    . UC.downloadAudioFeed audioFeedParser
+  where
+    audioFeedParser text
+      | text == testDownloadedText = Just feed
+      | otherwise = Nothing
+
+runYoutubePure :: Text -> InterpreterFor UC.Youtube r
+runYoutubePure retValue = interpret $ \case
+  UC.GetChannelFeed cid
+    | cid == channelId -> pure retValue
+    | otherwise -> error "unexpected channel ID"
+
+channelId :: UC.ChannelId
+channelId = UC.ChannelId "UC5VtdI-WX"
+
+{- | This text is used to ensure that whatever the `Youtube` effect returns for
+the channel feed is what's passed to the audio feed parser.
+-}
+testDownloadedText :: Text
+testDownloadedText = "downloaded text"
 
 testPubDate :: UTCTime
 testPubDate = read "2023-02-01 08:00:00 UTC"

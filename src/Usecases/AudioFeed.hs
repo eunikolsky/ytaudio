@@ -1,5 +1,6 @@
 module Usecases.AudioFeed
-  ( mkRssDoc
+  ( downloadAudioFeed
+  , ChannelId (..)
   )
 where
 
@@ -15,8 +16,20 @@ import Domain.AudioFeed hiding (AudioFeed)
 import Domain.AudioFeed qualified as Dom
 import Domain.AudioFeed.Item hiding (AudioFeedItem)
 import Domain.AudioFeed.Item qualified as Dom
+import Polysemy
 import Text.RSS.Types
 import URI.ByteString
+import Usecases.Youtube
+
+-- Audio feed on the `Usecases` layer is an `RssDocument'` because that's the
+-- form that can be directly serialized to XML (with `rss-conduit`).
+downloadAudioFeed
+  :: (Member Youtube r) => (Text -> Maybe Dom.AudioFeed) -> ChannelId -> Sem r (Maybe RssDocument')
+-- TODO should `parseFeed` be a separate effect, even though it's a pure function?
+downloadAudioFeed parseFeed channelId = do
+  feed <- getChannelFeed channelId
+  let audioFeed = parseFeed feed
+  pure $ mkRssDoc <$> audioFeed
 
 {-
  - Note: `mkRssDoc` is a pure function, so I think it has its place in the

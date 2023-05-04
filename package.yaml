@@ -21,6 +21,8 @@ description:         Please see the README on GitHub at <https://github.com/gith
 
 dependencies:
 - base >= 4.7 && < 5
+- polysemy
+- polysemy-plugin
 
 ghc-options:
 - -Wall
@@ -41,8 +43,15 @@ ghc-options:
 - -Wredundant-constraints
 - -Werror=empty-enumerations
 - -Werror=missing-home-modules
+# for polysemy:
+- -fplugin=Polysemy.Plugin
+- -O2
+- -flate-specialise
+- -fspecialise-aggressively
 
 default-extensions:
+# most of the list is copied from summoner
+# https://github.com/kowainik/summoner/blob/main/summoner-cli/examples/stack-full/stack-full.cabal
 - BangPatterns
 - BinaryLiterals
 - DeriveGeneric
@@ -53,10 +62,17 @@ default-extensions:
 - NamedFieldPuns
 - NumericUnderscores
 - OverloadedStrings
+# for polysemy:
+- DataKinds
+- FlexibleContexts
+- GADTs
+- LambdaCase
+- PolyKinds
+- RankNTypes
 - ScopedTypeVariables
 - TypeApplications
-# most of the list is copied from summoner
-# https://github.com/kowainik/summoner/blob/main/summoner-cli/examples/stack-full/stack-full.cabal
+- TypeOperators
+- TypeFamilies
 
 library:
   source-dirs: src
