@@ -116,6 +116,7 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - base
+    - bytestring
     - containers
     - hspec
     - hspec-wai
