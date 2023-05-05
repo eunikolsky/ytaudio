@@ -27,6 +27,7 @@ source-repository head
 
 library
   exposed-modules:
+      Adapters.Service
       Domain.AudioFeed
       Domain.AudioFeed.Item
       Domain.YoutubeFeed
@@ -115,6 +116,7 @@ test-suite ytaudio-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      Adapters.ServiceSpec
       Domain.YoutubeFeedSpec
       Usecases.AudioFeedSpec
       Paths_ytaudio
