@@ -33,6 +33,7 @@ library
       Domain.AudioFeed.Item
       Domain.YoutubeFeed
       Lib
+      RunYoutubeHTTP
       Usecases.AudioFeed
       Usecases.Youtube
   other-modules:
@@ -66,8 +67,11 @@ library
   build-depends:
       base >=4.7 && <5
     , binary
+    , bytestring
     , conduit
     , containers
+    , http-conduit
+    , mtl
     , polysemy
     , polysemy-plugin
     , rss-conduit

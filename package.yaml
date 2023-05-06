@@ -80,8 +80,11 @@ library:
   source-dirs: src
   dependencies:
   - binary
+  - bytestring
   - conduit
   - containers
+  - http-conduit
+  - mtl
   - rss-conduit
   - servant-server
   - text
