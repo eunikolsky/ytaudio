@@ -56,8 +56,10 @@ default-extensions:
 - BinaryLiterals
 - DeriveGeneric
 - DerivingStrategies
+- FlexibleInstances
 - GeneralizedNewtypeDeriving
 - ImportQualifiedPost
+- MultiParamTypeClasses
 - MultiWayIf
 - NamedFieldPuns
 - NumericUnderscores
@@ -77,6 +79,8 @@ default-extensions:
 library:
   source-dirs: src
   dependencies:
+  - binary
+  - conduit
   - containers
   - rss-conduit
   - servant-server
@@ -88,6 +92,7 @@ library:
   - wai
   - warp
   - xml
+  - xml-conduit
 
 executables:
   ytaudio:
@@ -101,10 +106,12 @@ executables:
     - base
     - ytaudio
 
-# note: this file is only needed for tests, however the `data-files` directive
+# note: these files are only needed for tests, however the `data-files` directive
 # has to be used globally only; the difference between this and
 # `extra-source-files` is not clear
-data-files:          test/Domain/videos.xml
+data-files:
+- test/Domain/videos.xml
+- test/Adapters/expectedAudioFeed.rss
 
 tests:
   ytaudio-test:
@@ -120,8 +127,10 @@ tests:
     - containers
     - hspec
     - hspec-wai
+    - mtl
     - raw-strings-qq
     - rss-conduit
+    - servant-server
     - text
     - time
     - uri-bytestring

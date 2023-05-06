@@ -5,13 +5,12 @@ module Lib
   , app
   ) where
 
-import Adapters.Service qualified as Ad
 import Network.Wai
-import Network.Wai.Handler.Warp
-import Servant
+import Network.Wai.Handler.Warp qualified as Warp
 
 startApp :: IO ()
-startApp = run 8080 app
+startApp = Warp.run 8080 app
 
 app :: Application
-app = serve Ad.api Ad.server
+-- FIXME implement!
+app = undefined

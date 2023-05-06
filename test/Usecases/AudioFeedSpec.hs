@@ -16,7 +16,7 @@ import Test.Hspec
 import Text.RSS.Types
 import URI.ByteString.QQ
 import Usecases.AudioFeed qualified as UC
-import Usecases.Youtube qualified as UC
+import Usecases.RunYoutubePure
 
 spec :: Spec
 spec = do
@@ -32,18 +32,12 @@ runDownloadAudioFeed
 runDownloadAudioFeed feed =
   run
     . runError
-    . runYoutubePure testDownloadedText
+    . runYoutubePure (channelId, testDownloadedText)
     . UC.downloadAudioFeed audioFeedParser
   where
     audioFeedParser text
       | text == testDownloadedText = Just feed
       | otherwise = Nothing
-
-runYoutubePure :: Text -> InterpreterFor UC.Youtube r
-runYoutubePure retValue = interpret $ \case
-  UC.GetChannelFeed cid
-    | cid == channelId -> pure retValue
-    | otherwise -> error "unexpected channel ID"
 
 channelId :: UC.ChannelId
 channelId = UC.ChannelId "UC5VtdI-WX"
