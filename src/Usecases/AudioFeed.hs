@@ -1,5 +1,6 @@
 module Usecases.AudioFeed
   ( downloadAudioFeed
+  , DownloadAudioFeedError (..)
   , ChannelId (..)
   )
 where
@@ -17,19 +18,28 @@ import Domain.AudioFeed qualified as Dom
 import Domain.AudioFeed.Item hiding (AudioFeedItem)
 import Domain.AudioFeed.Item qualified as Dom
 import Polysemy
+import Polysemy.Error
 import Text.RSS.Types
 import URI.ByteString
 import Usecases.Youtube
 
+-- | Errors that can happen in the `downloadAudioFeed` usecase.
+newtype DownloadAudioFeedError = YoutubeFeedParseError Text
+  deriving stock (Show, Eq)
+
 -- Audio feed on the `Usecases` layer is an `RssDocument'` because that's the
 -- form that can be directly serialized to XML (with `rss-conduit`).
 downloadAudioFeed
-  :: (Member Youtube r) => (Text -> Maybe Dom.AudioFeed) -> ChannelId -> Sem r (Maybe RssDocument')
+  :: (Member Youtube r, Member (Error DownloadAudioFeedError) r)
+  => (Text -> Maybe Dom.AudioFeed)
+  -> ChannelId
+  -> Sem r RssDocument'
 -- TODO should `parseFeed` be a separate effect, even though it's a pure function?
 downloadAudioFeed parseFeed channelId = do
   feed <- getChannelFeed channelId
-  let audioFeed = parseFeed feed
-  pure $ mkRssDoc <$> audioFeed
+  case parseFeed feed of
+    Just audioFeed -> pure $ mkRssDoc audioFeed
+    Nothing -> throw $ YoutubeFeedParseError feed
 
 {-
  - Note: `mkRssDoc` is a pure function, so I think it has its place in the

@@ -11,6 +11,7 @@ import Domain.AudioFeed qualified as Dom
 import Domain.AudioFeed.Item hiding (AudioFeedItem)
 import Domain.AudioFeed.Item qualified as Dom
 import Polysemy
+import Polysemy.Error
 import Test.Hspec
 import Text.RSS.Types
 import URI.ByteString.QQ
@@ -21,14 +22,16 @@ spec :: Spec
 spec = do
   describe "getAudioFeed" $ do
     it "creates RSS doc for youtube channel" $ do
-      runDownloadAudioFeed audioFeed channelId `shouldBe` Just rssDoc
+      runDownloadAudioFeed audioFeed channelId `shouldBe` Right rssDoc
 
 {- | Runs the `downloadAudioFeed` usecase purely, mocking the youtube downloader
 to return an empty string and then using `audioFeed` as the parsed value.
 -}
-runDownloadAudioFeed :: Dom.AudioFeed -> UC.ChannelId -> Maybe RssDocument'
+runDownloadAudioFeed
+  :: Dom.AudioFeed -> UC.ChannelId -> Either UC.DownloadAudioFeedError RssDocument'
 runDownloadAudioFeed feed =
   run
+    . runError
     . runYoutubePure testDownloadedText
     . UC.downloadAudioFeed audioFeedParser
   where
