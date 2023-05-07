@@ -32,7 +32,9 @@ spec = with createApp $ do
 bodyMatches :: BSL.ByteString -> ResponseMatcher
 bodyMatches expected =
   ResponseMatcher
-    { matchBody = MatchBody $ \_headers body -> eqBody body
+    { -- this trailing `\n` is needed to make `expectedAudioFeed.rss` a good text
+      -- file, and since the RSS renderer doesn't add it, we need to add it here
+      matchBody = MatchBody $ \_headers body -> eqBody (body <> "\n")
     , matchStatus = 200
     , matchHeaders = []
     }
