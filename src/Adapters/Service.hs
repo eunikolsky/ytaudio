@@ -7,6 +7,7 @@ import Conduit
 import Data.Binary.Builder qualified as BB
 import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
+import Data.Text (Text)
 import Domain.AudioFeed.Item qualified as Dom
 import Domain.YoutubeFeed qualified as Dom.YoutubeFeed
 import Network.HTTP.Media ((//))
@@ -53,7 +54,10 @@ type API =
   "feed" :> Capture "channelId" ChannelId :> Get '[PlainText] RssDocument'
     :<|> "yt"
       :> Capture "videoid" Dom.YoutubeVideoId
-      :> StreamGet NoFraming MP3 (ConduitT () ByteString (ResourceT IO) ())
+      :> StreamGet
+          NoFraming
+          MP3
+          (Headers '[Header "Content-Disposition" Text] (ConduitT () ByteString (ResourceT IO) ()))
 
 api :: Proxy API
 api = Proxy
@@ -65,10 +69,19 @@ server
      , Member UC.EncodeAudio r
      )
   => ServerT API (Sem r)
-server = getAudioFeed :<|> UC.streamAudio
+server = getAudioFeed :<|> streamAudio
 
 getAudioFeed
   :: (Member UC.Youtube r, Member (Error UC.DownloadAudioFeedError) r, Member (Input Port) r)
   => ChannelId
   -> Sem r RssDocument'
 getAudioFeed = UC.downloadAudioFeed Dom.YoutubeFeed.parse . unChannelId
+
+streamAudio
+  :: (Member UC.EncodeAudio r)
+  => Dom.YoutubeVideoId
+  -> Sem r (Headers '[Header "Content-Disposition" Text] (ConduitT () ByteString (ResourceT IO) ()))
+streamAudio videoId = addFilenameHeader videoId <$> UC.streamAudio videoId
+
+addFilenameHeader :: (AddHeader h Text orig new) => Dom.YoutubeVideoId -> orig -> new
+addFilenameHeader videoId = addHeader ("attachment; filename=\"" <> Dom.getYoutubeVideoId videoId <> ".mp3\"")
