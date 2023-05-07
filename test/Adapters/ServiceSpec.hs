@@ -11,10 +11,12 @@ import Data.Text.Lazy.Encoding qualified as TEL
 import Paths_ytaudio (getDataFileName)
 import Polysemy
 import Polysemy.Error
+import Polysemy.Input
 import Servant.Server
 import Test.Hspec
 import Test.Hspec.Wai
 import Text.Show.Unicode
+import URI.ByteString (Port (..))
 import Usecases.AudioFeed qualified as UC
 import Usecases.RunYoutubePure
 import Usecases.Youtube qualified as UC
@@ -62,10 +64,12 @@ createApp = do
 liftServer :: Text -> Server API
 liftServer youtubeFeed = hoistServer api (interpretServer youtubeFeed) server
 
-interpretServer :: Text -> Sem [UC.Youtube, Error UC.DownloadAudioFeedError] x -> Handler x
+interpretServer
+  :: Text -> Sem [UC.Youtube, Error UC.DownloadAudioFeedError, Input Port] x -> Handler x
 interpretServer youtubeFeed =
   liftToHandler
     . run
+    . runInputConst (Port 8080)
     . runError @UC.DownloadAudioFeedError
     . runYoutubePure (UC.ChannelId "UCnExw5tVdA3TJeb4kmCd-JQ", youtubeFeed)
 

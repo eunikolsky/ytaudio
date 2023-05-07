@@ -8,10 +8,12 @@ import Data.Binary.Builder qualified as BB
 import Domain.YoutubeFeed qualified as Dom.YoutubeFeed
 import Polysemy
 import Polysemy.Error
+import Polysemy.Input
 import Servant
 import Text.RSS.Conduit.Render (renderRssDocument)
 import Text.RSS.Types
 import Text.XML.Stream.Render
+import URI.ByteString (Port)
 import Usecases.AudioFeed qualified as UC
 import Usecases.Youtube qualified as UC
 
@@ -34,9 +36,13 @@ type API = "feed" :> Capture "channelId" ChannelId :> Get '[PlainText] RssDocume
 api :: Proxy API
 api = Proxy
 
-server :: (Member UC.Youtube r, Member (Error UC.DownloadAudioFeedError) r) => ServerT API (Sem r)
+server
+  :: (Member UC.Youtube r, Member (Error UC.DownloadAudioFeedError) r, Member (Input Port) r)
+  => ServerT API (Sem r)
 server = getAudioFeed
 
 getAudioFeed
-  :: (Member UC.Youtube r, Member (Error UC.DownloadAudioFeedError) r) => ChannelId -> Sem r RssDocument'
+  :: (Member UC.Youtube r, Member (Error UC.DownloadAudioFeedError) r, Member (Input Port) r)
+  => ChannelId
+  -> Sem r RssDocument'
 getAudioFeed = UC.downloadAudioFeed Dom.YoutubeFeed.parse . unChannelId

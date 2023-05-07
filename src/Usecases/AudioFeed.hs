@@ -19,6 +19,7 @@ import Domain.AudioFeed.Item hiding (AudioFeedItem)
 import Domain.AudioFeed.Item qualified as Dom
 import Polysemy
 import Polysemy.Error
+import Polysemy.Input
 import Text.RSS.Types
 import URI.ByteString
 import Usecases.Youtube
@@ -30,7 +31,8 @@ newtype DownloadAudioFeedError = YoutubeFeedParseError Text
 -- Audio feed on the `Usecases` layer is an `RssDocument'` because that's the
 -- form that can be directly serialized to XML (with `rss-conduit`).
 downloadAudioFeed
-  :: (Member Youtube r, Member (Error DownloadAudioFeedError) r)
+  -- TODO `Port` comes from `uri-bytestring` — is this fine?
+  :: (Member Youtube r, Member (Error DownloadAudioFeedError) r, Member (Input Port) r)
   => (Text -> Maybe Dom.AudioFeed)
   -> ChannelId
   -> Sem r RssDocument'
@@ -38,7 +40,7 @@ downloadAudioFeed
 downloadAudioFeed parseFeed channelId = do
   feed <- getChannelFeed channelId
   case parseFeed feed of
-    Just audioFeed -> pure $ mkRssDoc audioFeed
+    Just audioFeed -> mkRssDoc audioFeed
     Nothing -> throw $ YoutubeFeedParseError feed
 
 {-
@@ -54,56 +56,62 @@ downloadAudioFeed parseFeed channelId = do
  - directly would be much more annoying.
  -}
 
-mkRssDoc :: Dom.AudioFeed -> RssDocument'
-mkRssDoc Dom.AudioFeed{afTitle, afLink, afItems} =
-  RssDocument
-    { -- fields dependent on `Dom.AudioFeed`
-      channelTitle = afTitle
-    , channelLink = urlToURI afLink
-    , channelItems = mkRssItem <$> afItems
-    , -- static fields
-      documentVersion = makeVersion [2, 0]
-    , -- unused fields
-      channelDescription = ""
-    , channelLanguage = ""
-    , channelCopyright = ""
-    , channelManagingEditor = ""
-    , channelWebmaster = ""
-    , channelPubDate = Nothing
-    , channelLastBuildDate = Nothing
-    , channelCategories = []
-    , channelGenerator = ""
-    , channelDocs = Nothing
-    , channelCloud = Nothing
-    , channelTtl = Nothing
-    , channelImage = Nothing
-    , channelRating = ""
-    , channelTextInput = Nothing
-    , channelSkipHours = S.empty
-    , channelSkipDays = S.empty
-    , channelExtensions = NoChannelExtensions
-    }
+mkRssDoc :: (Member (Input Port) r) => Dom.AudioFeed -> Sem r RssDocument'
+mkRssDoc Dom.AudioFeed{afTitle, afLink, afItems} = do
+  channelItems <- traverse mkRssItem afItems
+  pure
+    RssDocument
+      { -- fields dependent on `Dom.AudioFeed`
+        channelTitle = afTitle
+      , channelLink = urlToURI afLink
+      , channelItems
+      , -- static fields
+        documentVersion = makeVersion [2, 0]
+      , -- unused fields
+        channelDescription = ""
+      , channelLanguage = ""
+      , channelCopyright = ""
+      , channelManagingEditor = ""
+      , channelWebmaster = ""
+      , channelPubDate = Nothing
+      , channelLastBuildDate = Nothing
+      , channelCategories = []
+      , channelGenerator = ""
+      , channelDocs = Nothing
+      , channelCloud = Nothing
+      , channelTtl = Nothing
+      , channelImage = Nothing
+      , channelRating = ""
+      , channelTextInput = Nothing
+      , channelSkipHours = S.empty
+      , channelSkipDays = S.empty
+      , channelExtensions = NoChannelExtensions
+      }
 
-mkRssItem :: Dom.AudioFeedItem -> RssItem'
-mkRssItem Dom.AudioFeedItem{afiTitle, afiGuid, afiPubDate, afiDescription, afiLink} =
-  RssItem
-    { itemTitle = afiTitle
-    , itemLink = Just . urlToURI $ afiLink
-    , itemDescription = afiDescription
-    , itemEnclosure
-    , itemGuid = Just . GuidText . getYoutubeVideoId $ afiGuid
-    , itemPubDate = Just afiPubDate
-    , -- unused fields
-      itemAuthor = ""
-    , itemCategories = []
-    , itemComments = Nothing
-    , itemSource = Nothing
-    , itemExtensions = NoItemExtensions
-    }
+mkRssItem :: (Member (Input Port) r) => Dom.AudioFeedItem -> Sem r RssItem'
+mkRssItem Dom.AudioFeedItem{afiTitle, afiGuid, afiPubDate, afiDescription, afiLink} = do
+  port <- input
+  pure
+    RssItem
+      { itemTitle = afiTitle
+      , itemLink = Just . urlToURI $ afiLink
+      , itemDescription = afiDescription
+      , itemEnclosure = itemEnclosure port
+      , itemGuid = Just . GuidText . getYoutubeVideoId $ afiGuid
+      , itemPubDate = Just afiPubDate
+      , -- unused fields
+        itemAuthor = ""
+      , itemCategories = []
+      , itemComments = Nothing
+      , itemSource = Nothing
+      , itemExtensions = NoItemExtensions
+      }
   where
-    itemEnclosure =
+    itemEnclosure port =
       [ RssEnclosure
-          { enclosureUrl = urlToURI $ "http://localhost:3000/yt/" <> getYoutubeVideoId afiGuid
+          { enclosureUrl =
+              urlToURI $
+                "http://localhost:" <> (T.pack . show . portNumber $ port) <> "/yt/" <> getYoutubeVideoId afiGuid
           , enclosureLength = unknownLength
           , enclosureType = "audio/mpeg"
           }

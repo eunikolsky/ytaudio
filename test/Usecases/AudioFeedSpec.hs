@@ -12,8 +12,10 @@ import Domain.AudioFeed.Item hiding (AudioFeedItem)
 import Domain.AudioFeed.Item qualified as Dom
 import Polysemy
 import Polysemy.Error
+import Polysemy.Input
 import Test.Hspec
 import Text.RSS.Types
+import URI.ByteString (Port (..))
 import URI.ByteString.QQ
 import Usecases.AudioFeed qualified as UC
 import Usecases.RunYoutubePure
@@ -31,6 +33,7 @@ runDownloadAudioFeed
   :: Dom.AudioFeed -> UC.ChannelId -> Either UC.DownloadAudioFeedError RssDocument'
 runDownloadAudioFeed feed =
   run
+    . runInputConst (Port 8080)
     . runError
     . runYoutubePure (channelId, testDownloadedText)
     . UC.downloadAudioFeed audioFeedParser
@@ -110,7 +113,7 @@ rssDoc =
   where
     enclosure =
       RssEnclosure
-        { enclosureUrl = RssURI [uri|http://localhost:3000/yt/hC0de9|]
+        { enclosureUrl = RssURI [uri|http://localhost:8080/yt/hC0de9|]
         , enclosureLength = 0
         , enclosureType = "audio/mpeg"
         }
