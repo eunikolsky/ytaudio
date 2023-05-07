@@ -1,5 +1,5 @@
 name:                ytaudio
-version:             0.1.0.0
+version:             0.1.1
 github:              "githubuser/ytaudio"
 license:             BSD3
 author:              "Author name here"
@@ -111,6 +111,8 @@ executables:
     - -with-rtsopts=-N
     dependencies:
     - base
+    - optparse-generic
+    - warp
     - ytaudio
 
 # note: these files are only needed for tests, however the `data-files` directive
