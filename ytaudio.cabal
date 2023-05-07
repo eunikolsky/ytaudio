@@ -173,6 +173,7 @@ test-suite ytaudio-test
     , servant-server
     , text
     , time
+    , unicode-show
     , uri-bytestring
     , ytaudio
   default-language: Haskell2010

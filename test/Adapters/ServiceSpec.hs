@@ -14,6 +14,7 @@ import Polysemy.Error
 import Servant.Server
 import Test.Hspec
 import Test.Hspec.Wai
+import Text.Show.Unicode
 import Usecases.AudioFeed qualified as UC
 import Usecases.RunYoutubePure
 import Usecases.Youtube qualified as UC
@@ -39,7 +40,14 @@ bodyMatches expected =
     eqBody body =
       if body == expected
         then Nothing
-        else Just $ "expected body to be " <> show expected <> "\nbut got " <> show body
+        else
+          Just $
+            mconcat
+              [ "expected body to be "
+              , ushow (TEL.decodeUtf8 expected)
+              , "\nbut got "
+              , ushow (TEL.decodeUtf8 body)
+              ]
 
 createApp :: IO Application
 createApp = do
