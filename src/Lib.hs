@@ -5,24 +5,48 @@ module Lib
   , app
   ) where
 
-import Data.Text (Text)
+import Adapters.Service qualified as Ad
+import Control.Monad.Except
+import Data.Bifunctor (first)
+import Data.Text.Lazy qualified as TL
+import Data.Text.Lazy.Encoding qualified as TEL
 import Network.Wai
-import Network.Wai.Handler.Warp
-import Servant
+import Network.Wai.Handler.Warp qualified as Warp
+import Polysemy
+import Polysemy.Error
+import Polysemy.Input
+import RunEncodeAudioProcess
+import RunYoutubeHTTP
+import Servant.Server
+import URI.ByteString (Port (..))
+import Usecases.AudioFeed qualified as UC
+import Usecases.EncodeAudio qualified as UC
+import Usecases.Youtube qualified as UC
 
-type API = Get '[PlainText] Text
+startApp :: Warp.Port -> IO ()
+startApp port = Warp.run port $ app port
 
-startApp :: IO ()
-startApp = run 8080 app
+app :: Warp.Port -> Application
+app = serve Ad.api . liftServer
 
-app :: Application
-app = serve api server
+liftServer :: Warp.Port -> Server Ad.API
+liftServer port = hoistServer Ad.api (interpretServer port) Ad.server
 
-api :: Proxy API
-api = Proxy
+interpretServer
+  :: Warp.Port
+  -> Sem [UC.Youtube, UC.EncodeAudio, Error UC.DownloadAudioFeedError, Input Port, Embed IO] a
+  -> Handler a
+interpretServer port =
+  liftToHandler
+    . runM
+    . runInputConst (Port port)
+    . runError @UC.DownloadAudioFeedError
+    . runEncodeAudioProcess
+    . runYoutubeHTTP
 
-server :: Server API
-server = getRoot
+liftToHandler :: IO (Either UC.DownloadAudioFeedError x) -> Handler x
+liftToHandler = Handler . ExceptT . fmap (first handleErrors)
 
-getRoot :: Handler Text
-getRoot = return "hello world"
+-- FIXME remove duplication with tests
+handleErrors :: UC.DownloadAudioFeedError -> ServerError
+handleErrors (UC.YoutubeFeedParseError text) = err500{errBody = TEL.encodeUtf8 . TL.fromStrict $ text}

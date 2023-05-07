@@ -21,6 +21,8 @@ description:         Please see the README on GitHub at <https://github.com/gith
 
 dependencies:
 - base >= 4.7 && < 5
+- polysemy
+- polysemy-plugin
 
 ghc-options:
 - -Wall
@@ -41,30 +43,63 @@ ghc-options:
 - -Wredundant-constraints
 - -Werror=empty-enumerations
 - -Werror=missing-home-modules
+# for polysemy:
+- -fplugin=Polysemy.Plugin
+- -O2
+- -flate-specialise
+- -fspecialise-aggressively
 
 default-extensions:
+# most of the list is copied from summoner
+# https://github.com/kowainik/summoner/blob/main/summoner-cli/examples/stack-full/stack-full.cabal
 - BangPatterns
 - BinaryLiterals
 - DeriveGeneric
 - DerivingStrategies
+- FlexibleInstances
 - GeneralizedNewtypeDeriving
 - ImportQualifiedPost
+- MultiParamTypeClasses
 - MultiWayIf
 - NamedFieldPuns
 - NumericUnderscores
 - OverloadedStrings
+# for polysemy:
+- DataKinds
+- FlexibleContexts
+- GADTs
+- LambdaCase
+- PolyKinds
+- RankNTypes
 - ScopedTypeVariables
 - TypeApplications
-# most of the list is copied from summoner
-# https://github.com/kowainik/summoner/blob/main/summoner-cli/examples/stack-full/stack-full.cabal
+- TypeOperators
+- TypeFamilies
 
 library:
   source-dirs: src
   dependencies:
+  - binary
+  - bytestring
+  - conduit
+  - conduit-extra
+  - containers
+  - http-conduit
+  - http-media
+  - mtl
+  - process
+  - rss-conduit
+  - servant-conduit
   - servant-server
   - text
+  - time
+  - timerep
+  - unicode-show
+  - uri-bytestring
   - wai
   - warp
+  - xml
+  - xml-conduit
 
 executables:
   ytaudio:
@@ -78,6 +113,13 @@ executables:
     - base
     - ytaudio
 
+# note: these files are only needed for tests, however the `data-files` directive
+# has to be used globally only; the difference between this and
+# `extra-source-files` is not clear
+data-files:
+- test/Domain/videos.xml
+- test/Adapters/expectedAudioFeed.rss
+
 tests:
   ytaudio-test:
     main:                Spec.hs
@@ -88,8 +130,16 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - base
-    - ytaudio
+    - bytestring
+    - containers
     - hspec
     - hspec-wai
-    - hspec-wai-json
-    - aeson
+    - mtl
+    - raw-strings-qq
+    - rss-conduit
+    - servant-server
+    - text
+    - time
+    - unicode-show
+    - uri-bytestring
+    - ytaudio

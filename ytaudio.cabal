@@ -18,6 +18,9 @@ build-type:     Simple
 extra-source-files:
     README.md
     CHANGELOG.md
+data-files:
+    test/Domain/videos.xml
+    test/Adapters/expectedAudioFeed.rss
 
 source-repository head
   type: git
@@ -25,7 +28,17 @@ source-repository head
 
 library
   exposed-modules:
+      Adapters.Service
+      Domain.AudioFeed
+      Domain.AudioFeed.Item
+      Domain.YoutubeFeed
       Lib
+      RunEncodeAudioProcess
+      RunYoutubeHTTP
+      Usecases.AudioFeed
+      Usecases.EncodeAudio
+      Usecases.StreamAudio
+      Usecases.Youtube
   other-modules:
       Paths_ytaudio
   hs-source-dirs:
@@ -35,21 +48,50 @@ library
       BinaryLiterals
       DeriveGeneric
       DerivingStrategies
+      FlexibleInstances
       GeneralizedNewtypeDeriving
       ImportQualifiedPost
+      MultiParamTypeClasses
       MultiWayIf
       NamedFieldPuns
       NumericUnderscores
       OverloadedStrings
+      DataKinds
+      FlexibleContexts
+      GADTs
+      LambdaCase
+      PolyKinds
+      RankNTypes
       ScopedTypeVariables
       TypeApplications
-  ghc-options: -Wall -Wcompat -Widentities -fhide-source-paths -Wnoncanonical-monad-instances -Werror=incomplete-record-updates -Werror=incomplete-patterns -Werror=incomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wmissing-deriving-strategies -Wunused-packages -Werror=missing-fields -Werror=missing-methods -Wpartial-fields -Wredundant-constraints -Werror=empty-enumerations -Werror=missing-home-modules
+      TypeOperators
+      TypeFamilies
+  ghc-options: -Wall -Wcompat -Widentities -fhide-source-paths -Wnoncanonical-monad-instances -Werror=incomplete-record-updates -Werror=incomplete-patterns -Werror=incomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wmissing-deriving-strategies -Wunused-packages -Werror=missing-fields -Werror=missing-methods -Wpartial-fields -Wredundant-constraints -Werror=empty-enumerations -Werror=missing-home-modules -fplugin=Polysemy.Plugin -O2 -flate-specialise -fspecialise-aggressively
   build-depends:
       base >=4.7 && <5
+    , binary
+    , bytestring
+    , conduit
+    , conduit-extra
+    , containers
+    , http-conduit
+    , http-media
+    , mtl
+    , polysemy
+    , polysemy-plugin
+    , process
+    , rss-conduit
+    , servant-conduit
     , servant-server
     , text
+    , time
+    , timerep
+    , unicode-show
+    , uri-bytestring
     , wai
     , warp
+    , xml
+    , xml-conduit
   default-language: Haskell2010
 
 executable ytaudio
@@ -63,17 +105,29 @@ executable ytaudio
       BinaryLiterals
       DeriveGeneric
       DerivingStrategies
+      FlexibleInstances
       GeneralizedNewtypeDeriving
       ImportQualifiedPost
+      MultiParamTypeClasses
       MultiWayIf
       NamedFieldPuns
       NumericUnderscores
       OverloadedStrings
+      DataKinds
+      FlexibleContexts
+      GADTs
+      LambdaCase
+      PolyKinds
+      RankNTypes
       ScopedTypeVariables
       TypeApplications
-  ghc-options: -Wall -Wcompat -Widentities -fhide-source-paths -Wnoncanonical-monad-instances -Werror=incomplete-record-updates -Werror=incomplete-patterns -Werror=incomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wmissing-deriving-strategies -Wunused-packages -Werror=missing-fields -Werror=missing-methods -Wpartial-fields -Wredundant-constraints -Werror=empty-enumerations -Werror=missing-home-modules -threaded -rtsopts -with-rtsopts=-N
+      TypeOperators
+      TypeFamilies
+  ghc-options: -Wall -Wcompat -Widentities -fhide-source-paths -Wnoncanonical-monad-instances -Werror=incomplete-record-updates -Werror=incomplete-patterns -Werror=incomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wmissing-deriving-strategies -Wunused-packages -Werror=missing-fields -Werror=missing-methods -Wpartial-fields -Wredundant-constraints -Werror=empty-enumerations -Werror=missing-home-modules -fplugin=Polysemy.Plugin -O2 -flate-specialise -fspecialise-aggressively -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base
+    , polysemy
+    , polysemy-plugin
     , ytaudio
   default-language: Haskell2010
 
@@ -81,6 +135,10 @@ test-suite ytaudio-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      Adapters.ServiceSpec
+      Domain.YoutubeFeedSpec
+      Usecases.AudioFeedSpec
+      Usecases.RunYoutubePure
       Paths_ytaudio
   hs-source-dirs:
       test
@@ -89,20 +147,40 @@ test-suite ytaudio-test
       BinaryLiterals
       DeriveGeneric
       DerivingStrategies
+      FlexibleInstances
       GeneralizedNewtypeDeriving
       ImportQualifiedPost
+      MultiParamTypeClasses
       MultiWayIf
       NamedFieldPuns
       NumericUnderscores
       OverloadedStrings
+      DataKinds
+      FlexibleContexts
+      GADTs
+      LambdaCase
+      PolyKinds
+      RankNTypes
       ScopedTypeVariables
       TypeApplications
-  ghc-options: -Wall -Wcompat -Widentities -fhide-source-paths -Wnoncanonical-monad-instances -Werror=incomplete-record-updates -Werror=incomplete-patterns -Werror=incomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wmissing-deriving-strategies -Wunused-packages -Werror=missing-fields -Werror=missing-methods -Wpartial-fields -Wredundant-constraints -Werror=empty-enumerations -Werror=missing-home-modules -threaded -rtsopts -with-rtsopts=-N
+      TypeOperators
+      TypeFamilies
+  ghc-options: -Wall -Wcompat -Widentities -fhide-source-paths -Wnoncanonical-monad-instances -Werror=incomplete-record-updates -Werror=incomplete-patterns -Werror=incomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wmissing-deriving-strategies -Wunused-packages -Werror=missing-fields -Werror=missing-methods -Wpartial-fields -Wredundant-constraints -Werror=empty-enumerations -Werror=missing-home-modules -fplugin=Polysemy.Plugin -O2 -flate-specialise -fspecialise-aggressively -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      aeson
-    , base
+      base
+    , bytestring
+    , containers
     , hspec
     , hspec-wai
-    , hspec-wai-json
+    , mtl
+    , polysemy
+    , polysemy-plugin
+    , raw-strings-qq
+    , rss-conduit
+    , servant-server
+    , text
+    , time
+    , unicode-show
+    , uri-bytestring
     , ytaudio
   default-language: Haskell2010

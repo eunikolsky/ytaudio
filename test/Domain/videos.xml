@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- this is a real youtube channel feed, with local changes:
+* youtube returns 15 entries, but I truncated them to 2
+* truncated the `media:description` text
+-->
+<feed xmlns:yt="http://www.youtube.com/xml/schemas/2015" xmlns:media="http://search.yahoo.com/mrss/" xmlns="http://www.w3.org/2005/Atom">
+ <link rel="self" href="http://www.youtube.com/feeds/videos.xml?channel_id=UCnExw5tVdA3TJeb4kmCd-JQ"/>
+ <id>yt:channel:</id>
+ <yt:channelId></yt:channelId>
+ <title>Yakov Fain</title>
+ <link rel="alternate" href="https://www.youtube.com/channel/UCnExw5tVdA3TJeb4kmCd-JQ"/>
+ <author>
+  <name>Yakov Fain</name>
+  <uri>https://www.youtube.com/channel/UCnExw5tVdA3TJeb4kmCd-JQ</uri>
+ </author>
+ <published>2006-09-18T13:43:00+00:00</published>
+ <entry>
+  <id>yt:video:Cl3aOUbGVbE</id>
+  <yt:videoId>Cl3aOUbGVbE</yt:videoId>
+  <yt:channelId>UCnExw5tVdA3TJeb4kmCd-JQ</yt:channelId>
+  <title>#1283 Переговоры начнутся осенью</title>
+  <link rel="alternate" href="https://www.youtube.com/watch?v=Cl3aOUbGVbE"/>
+  <author>
+   <name>Yakov Fain</name>
+   <uri>https://www.youtube.com/channel/UCnExw5tVdA3TJeb4kmCd-JQ</uri>
+  </author>
+  <published>2023-04-30T02:21:51+00:00</published>
+  <updated>2023-04-30T06:05:28+00:00</updated>
+  <media:group>
+   <media:title>#1283 Переговоры начнутся осенью</media:title>
+   <media:content url="https://www.youtube.com/v/Cl3aOUbGVbE?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+   <media:thumbnail url="https://i4.ytimg.com/vi/Cl3aOUbGVbE/hqdefault.jpg" width="480" height="360"/>
+   <media:description>00:00 Комментарии
+06:49 Еврей из США не может рассуждать
+09:50 Пять острых проблем Украины 
+14:17 Комментарии
+…</media:description>
+   <media:community>
+    <media:starRating count="117" average="5.00" min="1" max="5"/>
+    <media:statistics views="789"/>
+   </media:community>
+  </media:group>
+ </entry>
+ <entry>
+  <id>yt:video:o2lki2W8nGA</id>
+  <yt:videoId>o2lki2W8nGA</yt:videoId>
+  <yt:channelId>UCnExw5tVdA3TJeb4kmCd-JQ</yt:channelId>
+  <title>#1282 Русский народ бомбит спящих жителей Умани</title>
+  <link rel="alternate" href="https://www.youtube.com/watch?v=o2lki2W8nGA"/>
+  <author>
+   <name>Yakov Fain</name>
+   <uri>https://www.youtube.com/channel/UCnExw5tVdA3TJeb4kmCd-JQ</uri>
+  </author>
+  <published>2023-04-29T02:21:58+00:00</published>
+  <updated>2023-04-29T05:57:28+00:00</updated>
+  <media:group>
+   <media:title>#1282 Русский народ бомбит спящих жителей Умани</media:title>
+   <media:content url="https://www.youtube.com/v/o2lki2W8nGA?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+   <media:thumbnail url="https://i4.ytimg.com/vi/o2lki2W8nGA/hqdefault.jpg" width="480" height="360"/>
+   <media:description>00:00 Комментарии
+02:24 На концерте группы Океан Эльзы
+07:43 Комментарии
+09:18 Русский народ бомбит спящих граждан в Умани
+15:05 Комментарии
+15:25 Рекоммендации Зеленского по военкомам
+19:55 Одесский военком жирует
+23:00 Комментарии
+25:07 Украинцы на Уимблдоне?
+27:55 Комментарии
+28:28 Все товары под замок
+31:23 Комментарии
+32:48 ДеСантис против Диснея
+48:45 Загорелся самолет
+
+Мои youtube каналы
+
+1. Yakov Fain: https://www.youtube.com/channel/UCnExw5tVdA3TJeb4kmCd-JQ 
+2. Карьера в ИТ:  https://www.youtube.com/channel/UCdI5EH48Quo0Cope7Jvg-Pg 
+3. Программист читает библию: https://www.youtube.com/channel/UCB4-nBNOP0N1J2Sh-A51sFQ</media:description>
+   <media:community>
+    <media:starRating count="133" average="5.00" min="1" max="5"/>
+    <media:statistics views="918"/>
+   </media:community>
+  </media:group>
+ </entry>
+</feed>
