@@ -82,10 +82,14 @@ library:
   - binary
   - bytestring
   - conduit
+  - conduit-extra
   - containers
   - http-conduit
+  - http-media
   - mtl
+  - process
   - rss-conduit
+  - servant-conduit
   - servant-server
   - text
   - time

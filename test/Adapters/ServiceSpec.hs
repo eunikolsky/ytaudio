@@ -18,6 +18,7 @@ import Test.Hspec.Wai
 import Text.Show.Unicode
 import URI.ByteString (Port (..))
 import Usecases.AudioFeed qualified as UC
+import Usecases.EncodeAudio qualified as UC
 import Usecases.RunYoutubePure
 import Usecases.Youtube qualified as UC
 
@@ -65,12 +66,13 @@ liftServer :: Text -> Server API
 liftServer youtubeFeed = hoistServer api (interpretServer youtubeFeed) server
 
 interpretServer
-  :: Text -> Sem [UC.Youtube, Error UC.DownloadAudioFeedError, Input Port] x -> Handler x
+  :: Text -> Sem [UC.Youtube, UC.EncodeAudio, Error UC.DownloadAudioFeedError, Input Port] x -> Handler x
 interpretServer youtubeFeed =
   liftToHandler
     . run
     . runInputConst (Port 8080)
     . runError @UC.DownloadAudioFeedError
+    . runEncodeAudioPure
     . runYoutubePure (UC.ChannelId "UCnExw5tVdA3TJeb4kmCd-JQ", youtubeFeed)
 
 liftToHandler :: Either UC.DownloadAudioFeedError x -> Handler x
@@ -78,3 +80,7 @@ liftToHandler = Handler . ExceptT . pure . first handleErrors
 
 handleErrors :: UC.DownloadAudioFeedError -> ServerError
 handleErrors (UC.YoutubeFeedParseError text) = err500{errBody = TEL.encodeUtf8 . TL.fromStrict $ text}
+
+runEncodeAudioPure :: Sem (UC.EncodeAudio ': r) a -> Sem r a
+runEncodeAudioPure = interpret $ \case
+  UC.EncodeAudio _ -> error "FIXME implement for tests"

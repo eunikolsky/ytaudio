@@ -33,8 +33,11 @@ library
       Domain.AudioFeed.Item
       Domain.YoutubeFeed
       Lib
+      RunEncodeAudioProcess
       RunYoutubeHTTP
       Usecases.AudioFeed
+      Usecases.EncodeAudio
+      Usecases.StreamAudio
       Usecases.Youtube
   other-modules:
       Paths_ytaudio
@@ -69,12 +72,16 @@ library
     , binary
     , bytestring
     , conduit
+    , conduit-extra
     , containers
     , http-conduit
+    , http-media
     , mtl
     , polysemy
     , polysemy-plugin
+    , process
     , rss-conduit
+    , servant-conduit
     , servant-server
     , text
     , time

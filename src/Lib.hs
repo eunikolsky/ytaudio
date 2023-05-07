@@ -15,10 +15,12 @@ import Network.Wai.Handler.Warp qualified as Warp
 import Polysemy
 import Polysemy.Error
 import Polysemy.Input
+import RunEncodeAudioProcess
 import RunYoutubeHTTP
 import Servant.Server
 import URI.ByteString (Port (..))
 import Usecases.AudioFeed qualified as UC
+import Usecases.EncodeAudio qualified as UC
 import Usecases.Youtube qualified as UC
 
 startApp :: Warp.Port -> IO ()
@@ -31,12 +33,15 @@ liftServer :: Warp.Port -> Server Ad.API
 liftServer port = hoistServer Ad.api (interpretServer port) Ad.server
 
 interpretServer
-  :: Warp.Port -> Sem [UC.Youtube, Error UC.DownloadAudioFeedError, Input Port, Embed IO] a -> Handler a
+  :: Warp.Port
+  -> Sem [UC.Youtube, UC.EncodeAudio, Error UC.DownloadAudioFeedError, Input Port, Embed IO] a
+  -> Handler a
 interpretServer port =
   liftToHandler
     . runM
     . runInputConst (Port port)
     . runError @UC.DownloadAudioFeedError
+    . runEncodeAudioProcess
     . runYoutubeHTTP
 
 liftToHandler :: IO (Either UC.DownloadAudioFeedError x) -> Handler x

@@ -5,16 +5,23 @@ where
 
 import Conduit
 import Data.Binary.Builder qualified as BB
+import Data.ByteString (ByteString)
+import Data.ByteString qualified as BS
+import Domain.AudioFeed.Item qualified as Dom
 import Domain.YoutubeFeed qualified as Dom.YoutubeFeed
+import Network.HTTP.Media ((//))
 import Polysemy
 import Polysemy.Error
 import Polysemy.Input
 import Servant
+import Servant.Conduit ()
 import Text.RSS.Conduit.Render (renderRssDocument)
 import Text.RSS.Types
 import Text.XML.Stream.Render
 import URI.ByteString (Port)
 import Usecases.AudioFeed qualified as UC
+import Usecases.EncodeAudio qualified as UC
+import Usecases.StreamAudio qualified as UC (streamAudio)
 import Usecases.Youtube qualified as UC
 
 {- | Wrapper for `UseCases.ChannelId` in order to implement `FromHttpApiData`,
@@ -30,16 +37,35 @@ instance MimeRender PlainText RssDocument' where
   -- TODO stream the rendered document directly?
   mimeRender _ doc = BB.toLazyByteString . runConduitPure $ renderRssDocument doc .| renderBuilder def .| foldC
 
+instance FromHttpApiData Dom.YoutubeVideoId where
+  parseUrlPiece = fmap Dom.YoutubeVideoId . parseUrlPiece
+
+data MP3
+
+instance Accept MP3 where
+  contentType _ = "audio" // "mpeg"
+
+instance MimeRender MP3 ByteString where
+  mimeRender _ = BS.fromStrict
+
 -- FIXME `application/rss+xml`
-type API = "feed" :> Capture "channelId" ChannelId :> Get '[PlainText] RssDocument'
+type API =
+  "feed" :> Capture "channelId" ChannelId :> Get '[PlainText] RssDocument'
+    :<|> "yt"
+      :> Capture "videoid" Dom.YoutubeVideoId
+      :> StreamGet NoFraming MP3 (ConduitT () ByteString (ResourceT IO) ())
 
 api :: Proxy API
 api = Proxy
 
 server
-  :: (Member UC.Youtube r, Member (Error UC.DownloadAudioFeedError) r, Member (Input Port) r)
+  :: ( Member UC.Youtube r
+     , Member (Error UC.DownloadAudioFeedError) r
+     , Member (Input Port) r
+     , Member UC.EncodeAudio r
+     )
   => ServerT API (Sem r)
-server = getAudioFeed
+server = getAudioFeed :<|> UC.streamAudio
 
 getAudioFeed
   :: (Member UC.Youtube r, Member (Error UC.DownloadAudioFeedError) r, Member (Input Port) r)
