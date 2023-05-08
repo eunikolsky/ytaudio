@@ -1,5 +1,5 @@
 name:                ytaudio
-version:             0.1.1
+version:             0.1.2
 github:              "githubuser/ytaudio"
 license:             BSD3
 author:              "Author name here"
@@ -97,6 +97,7 @@ library:
   - unicode-show
   - uri-bytestring
   - wai
+  - wai-logger
   - warp
   - xml
   - xml-conduit

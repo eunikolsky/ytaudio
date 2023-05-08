@@ -12,6 +12,7 @@ import Data.Text.Lazy qualified as TL
 import Data.Text.Lazy.Encoding qualified as TEL
 import Network.Wai
 import Network.Wai.Handler.Warp qualified as Warp
+import Network.Wai.Logger
 import Polysemy
 import Polysemy.Error
 import Polysemy.Input
@@ -24,7 +25,13 @@ import Usecases.EncodeAudio qualified as UC
 import Usecases.Youtube qualified as UC
 
 startApp :: Warp.Port -> IO ()
-startApp port = Warp.run port $ app port
+startApp port = withStdoutLogger $ \aplogger -> do
+  -- From: https://github.com/algas/haskell-servant-cookbook/blob/master/doc/Logger.md
+  -- TODO this doesn't show the content size (because servant always uses chunked
+  -- encoding); it would be great to count the bytes in the response and show
+  -- that too
+  let settings = Warp.setPort port $ Warp.setLogger aplogger Warp.defaultSettings
+  Warp.runSettings settings $ app port
 
 app :: Warp.Port -> Application
 app = serve Ad.api . liftServer
