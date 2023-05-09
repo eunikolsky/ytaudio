@@ -20,7 +20,7 @@ runEncodeAudioProcess = interpret $ \case
     pure encodedMP3Out
 
 -- shell command:
--- `yt-dlp -f ba --no-progress 'https://www.youtube.com/watch?v=id' -o - | \
+-- `yt-dlp -f ba --quiet 'https://www.youtube.com/watch?v=id' -o - | \
 -- ffmpeg -hide_banner -v warning -i pipe: -vn -acodec libmp3lame -b:a 96k \
 --   -movflags +faststart -metadata title='foo bar' -metadata genre=Podcast -f mp3 pipe:`
 --

@@ -89,7 +89,9 @@ handleErrors :: AudioServerError -> ServerError
 handleErrors (DownloadAudioFeedError (UC.YoutubeFeedParseError text)) =
   err500{errBody = TEL.encodeUtf8 . TL.fromStrict $ text}
 handleErrors (StreamAudioError (UC.LiveStreamNotReady status)) =
-  err444{errBody = "Video can't be downloaded yet; live status: " <> BSLC.pack (show status)}
+  err444NoResponse
+    { errBody = "Video can't be downloaded yet; live status: " <> BSLC.pack (show status)
+    }
 
 runEncodeAudioPure :: Sem (UC.EncodeAudio ': r) a -> Sem r a
 runEncodeAudioPure = interpret $ \case

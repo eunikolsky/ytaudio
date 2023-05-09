@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -Wno-orphans #-}
 
-module Adapters.Service (API, api, server, AudioServerError (..), err444)
+module Adapters.Service (API, api, server, AudioServerError (..), err444NoResponse)
 where
 
 import Conduit
@@ -95,8 +95,8 @@ streamAudio videoId = addFilenameHeader videoId <$> mapError StreamAudioError (U
 addFilenameHeader :: (AddHeader h Text orig new) => Dom.YoutubeVideoId -> orig -> new
 addFilenameHeader videoId = addHeader ("attachment; filename=\"" <> Dom.getYoutubeVideoId videoId <> ".mp3\"")
 
-err444 :: ServerError
-err444 =
+err444NoResponse :: ServerError
+err444NoResponse =
   ServerError
     { errHTTPCode = 444
     , errReasonPhrase = "No Response"

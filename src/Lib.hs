@@ -66,4 +66,6 @@ handleErrors :: Ad.AudioServerError -> ServerError
 handleErrors (Ad.DownloadAudioFeedError (UC.YoutubeFeedParseError text)) =
   err500{errBody = TEL.encodeUtf8 . TL.fromStrict $ text}
 handleErrors (Ad.StreamAudioError (UC.LiveStreamNotReady status)) =
-  Ad.err444{errBody = "Video can't be downloaded yet; live status: " <> BSLC.pack (show status)}
+  Ad.err444NoResponse
+    { errBody = "Video can't be downloaded yet; live status: " <> BSLC.pack (show status)
+    }
