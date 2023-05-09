@@ -1,15 +1,36 @@
-module Usecases.StreamAudio (streamAudio) where
+module Usecases.StreamAudio (streamAudio, StreamAudioError (..)) where
 
 import Conduit
 import Data.ByteString (ByteString)
 import Domain.AudioFeed.Item qualified as Dom
+import Domain.LiveStatus qualified as Dom
 import Polysemy
-
+import Polysemy.Error
 import Usecases.EncodeAudio
+import Usecases.LiveStreamCheck
 
--- FIXME add tests
+-- | Errors that can happen in `streamAudio`.
+newtype StreamAudioError = LiveStreamNotReady Dom.LiveStatus
+
+{- | Usecase to stream and re-encode an audio stream of a youtube video as MP3.
+Live streams are for now checked here before downloading, in which case an
+HTTP error is returned instead of producing a couple of warnings to `stderr`
+and an empty response body.
+-}
 streamAudio
-  :: (Member EncodeAudio r) => Dom.YoutubeVideoId -> Sem r (ConduitT () ByteString (ResourceT IO) ())
--- it seems silly to define this function as only calling to `encodeAudio`,
--- do I need it?
-streamAudio = encodeAudio
+  :: (Member EncodeAudio r, Member LiveStreamCheck r, Member (Error StreamAudioError) r)
+  => Dom.YoutubeVideoId
+  -> Sem r (ConduitT () ByteString (ResourceT IO) ())
+-- FIXME add tests
+streamAudio videoId = do
+  liveStatus <- liveStreamCheck videoId
+  if canBeDownloaded liveStatus
+    then encodeAudio videoId
+    else throw $ LiveStreamNotReady liveStatus
+
+-- | Returns whether a video can be downloaded based on its live status.
+canBeDownloaded :: Dom.LiveStatus -> Bool
+canBeDownloaded Dom.IsUpcoming = False
+-- this case is not clear, I haven't checked whether `yt-dlp` can download it
+canBeDownloaded Dom.PostLive = True
+canBeDownloaded _ = True

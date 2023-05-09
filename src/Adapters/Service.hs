@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -Wno-orphans #-}
 
-module Adapters.Service (API, api, server)
+module Adapters.Service (API, api, server, AudioServerError (..), err444)
 where
 
 import Conduit
@@ -22,7 +22,8 @@ import Text.XML.Stream.Render
 import URI.ByteString (Port)
 import Usecases.AudioFeed qualified as UC
 import Usecases.EncodeAudio qualified as UC
-import Usecases.StreamAudio qualified as UC (streamAudio)
+import Usecases.LiveStreamCheck qualified as UC
+import Usecases.StreamAudio qualified as UC
 import Usecases.Youtube qualified as UC
 
 {- | Wrapper for `UseCases.ChannelId` in order to implement `FromHttpApiData`,
@@ -62,26 +63,43 @@ type API =
 api :: Proxy API
 api = Proxy
 
+{- | Combination of errors from all server's usecases.
+TODO it's probably not the responsibility of the server to combine errors?!
+-}
+data AudioServerError
+  = DownloadAudioFeedError UC.DownloadAudioFeedError
+  | StreamAudioError UC.StreamAudioError
+
 server
   :: ( Member UC.Youtube r
-     , Member (Error UC.DownloadAudioFeedError) r
      , Member (Input Port) r
      , Member UC.EncodeAudio r
+     , Member (Error AudioServerError) r
+     , Member UC.LiveStreamCheck r
      )
   => ServerT API (Sem r)
 server = getAudioFeed :<|> streamAudio
 
 getAudioFeed
-  :: (Member UC.Youtube r, Member (Error UC.DownloadAudioFeedError) r, Member (Input Port) r)
+  :: (Member UC.Youtube r, Member (Error AudioServerError) r, Member (Input Port) r)
   => ChannelId
   -> Sem r RssDocument'
-getAudioFeed = UC.downloadAudioFeed Dom.YoutubeFeed.parse . unChannelId
+getAudioFeed = mapError DownloadAudioFeedError . UC.downloadAudioFeed Dom.YoutubeFeed.parse . unChannelId
 
 streamAudio
-  :: (Member UC.EncodeAudio r)
+  :: (Member UC.EncodeAudio r, Member (Error AudioServerError) r, Member UC.LiveStreamCheck r)
   => Dom.YoutubeVideoId
   -> Sem r (Headers '[Header "Content-Disposition" Text] (ConduitT () ByteString (ResourceT IO) ()))
-streamAudio videoId = addFilenameHeader videoId <$> UC.streamAudio videoId
+streamAudio videoId = addFilenameHeader videoId <$> mapError StreamAudioError (UC.streamAudio videoId)
 
 addFilenameHeader :: (AddHeader h Text orig new) => Dom.YoutubeVideoId -> orig -> new
 addFilenameHeader videoId = addHeader ("attachment; filename=\"" <> Dom.getYoutubeVideoId videoId <> ".mp3\"")
+
+err444 :: ServerError
+err444 =
+  ServerError
+    { errHTTPCode = 444
+    , errReasonPhrase = "No Response"
+    , errBody = ""
+    , errHeaders = []
+    }

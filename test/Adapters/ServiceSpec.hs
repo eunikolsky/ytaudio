@@ -4,10 +4,12 @@ import Adapters.Service
 import Control.Monad.Except
 import Data.Bifunctor (first)
 import Data.ByteString.Lazy qualified as BSL
+import Data.ByteString.Lazy.Char8 qualified as BSLC
 import Data.Text (Text)
 import Data.Text.IO qualified as T
 import Data.Text.Lazy qualified as TL
 import Data.Text.Lazy.Encoding qualified as TEL
+import Domain.LiveStatus qualified as Dom
 import Paths_ytaudio (getDataFileName)
 import Polysemy
 import Polysemy.Error
@@ -19,7 +21,9 @@ import Text.Show.Unicode
 import URI.ByteString (Port (..))
 import Usecases.AudioFeed qualified as UC
 import Usecases.EncodeAudio qualified as UC
+import Usecases.LiveStreamCheck qualified as UC
 import Usecases.RunYoutubePure
+import Usecases.StreamAudio qualified as UC
 import Usecases.Youtube qualified as UC
 
 spec :: Spec
@@ -66,21 +70,31 @@ liftServer :: Text -> Server API
 liftServer youtubeFeed = hoistServer api (interpretServer youtubeFeed) server
 
 interpretServer
-  :: Text -> Sem [UC.Youtube, UC.EncodeAudio, Error UC.DownloadAudioFeedError, Input Port] x -> Handler x
+  :: Text
+  -> Sem [UC.Youtube, UC.EncodeAudio, Error AudioServerError, Input Port, UC.LiveStreamCheck] x
+  -> Handler x
 interpretServer youtubeFeed =
   liftToHandler
     . run
+    . runLiveStreamCheckPure
     . runInputConst (Port 8080)
-    . runError @UC.DownloadAudioFeedError
+    . runError @AudioServerError
     . runEncodeAudioPure
     . runYoutubePure (UC.ChannelId "UCnExw5tVdA3TJeb4kmCd-JQ", youtubeFeed)
 
-liftToHandler :: Either UC.DownloadAudioFeedError x -> Handler x
+liftToHandler :: Either AudioServerError x -> Handler x
 liftToHandler = Handler . ExceptT . pure . first handleErrors
 
-handleErrors :: UC.DownloadAudioFeedError -> ServerError
-handleErrors (UC.YoutubeFeedParseError text) = err500{errBody = TEL.encodeUtf8 . TL.fromStrict $ text}
+handleErrors :: AudioServerError -> ServerError
+handleErrors (DownloadAudioFeedError (UC.YoutubeFeedParseError text)) =
+  err500{errBody = TEL.encodeUtf8 . TL.fromStrict $ text}
+handleErrors (StreamAudioError (UC.LiveStreamNotReady status)) =
+  err444{errBody = "Video can't be downloaded yet; live status: " <> BSLC.pack (show status)}
 
 runEncodeAudioPure :: Sem (UC.EncodeAudio ': r) a -> Sem r a
 runEncodeAudioPure = interpret $ \case
   UC.EncodeAudio _ -> error "FIXME implement for tests"
+
+runLiveStreamCheckPure :: Sem (UC.LiveStreamCheck : r) a -> Sem r a
+runLiveStreamCheckPure = interpret $ \case
+  UC.LiveStreamCheck _ -> pure Dom.NotLive
