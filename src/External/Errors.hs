@@ -19,3 +19,7 @@ handleErrors (Ad.StreamAudioError (UC.LiveStreamNotReady status)) =
   Ad.err444NoResponse
     { errBody = "Video can't be downloaded yet; live status: " <> BSLC.pack (show status)
     }
+handleErrors Ad.ConcurrentStreamingError =
+  Ad.err429TooManyRequests
+    { errBody = "Another stream is already being downloaded"
+    }
