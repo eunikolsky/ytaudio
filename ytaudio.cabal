@@ -33,6 +33,7 @@ library
       Domain.AudioFeed.Item
       Domain.LiveStatus
       Domain.YoutubeFeed
+      External.Errors
       Lib
       RunEncodeAudioProcess
       RunLiveStreamCheckYtDlp

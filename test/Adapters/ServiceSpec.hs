@@ -4,12 +4,11 @@ import Adapters.Service
 import Control.Monad.Except
 import Data.Bifunctor (first)
 import Data.ByteString.Lazy qualified as BSL
-import Data.ByteString.Lazy.Char8 qualified as BSLC
 import Data.Text (Text)
 import Data.Text.IO qualified as T
-import Data.Text.Lazy qualified as TL
 import Data.Text.Lazy.Encoding qualified as TEL
 import Domain.LiveStatus qualified as Dom
+import External.Errors qualified as Ext
 import Paths_ytaudio (getDataFileName)
 import Polysemy
 import Polysemy.Error
@@ -23,7 +22,6 @@ import Usecases.AudioFeed qualified as UC
 import Usecases.EncodeAudio qualified as UC
 import Usecases.LiveStreamCheck qualified as UC
 import Usecases.RunYoutubePure
-import Usecases.StreamAudio qualified as UC
 import Usecases.Youtube qualified as UC
 
 spec :: Spec
@@ -83,15 +81,7 @@ interpretServer youtubeFeed =
     . runYoutubePure (UC.ChannelId "UCnExw5tVdA3TJeb4kmCd-JQ", youtubeFeed)
 
 liftToHandler :: Either AudioServerError x -> Handler x
-liftToHandler = Handler . ExceptT . pure . first handleErrors
-
-handleErrors :: AudioServerError -> ServerError
-handleErrors (DownloadAudioFeedError (UC.YoutubeFeedParseError text)) =
-  err500{errBody = TEL.encodeUtf8 . TL.fromStrict $ text}
-handleErrors (StreamAudioError (UC.LiveStreamNotReady status)) =
-  err444NoResponse
-    { errBody = "Video can't be downloaded yet; live status: " <> BSLC.pack (show status)
-    }
+liftToHandler = Handler . ExceptT . pure . first Ext.handleErrors
 
 runEncodeAudioPure :: Sem (UC.EncodeAudio ': r) a -> Sem r a
 runEncodeAudioPure = interpret $ \case
