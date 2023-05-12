@@ -6,26 +6,24 @@ module Lib
   ) where
 
 import Adapters.Service qualified as Ad
+import Control.Concurrent.MVar
 import Control.Monad.Except
 import Data.Bifunctor (first)
-import Data.ByteString.Lazy.Char8 qualified as BSLC
-import Data.Text.Lazy qualified as TL
-import Data.Text.Lazy.Encoding qualified as TEL
+import External.Errors qualified as Ext
 import Network.Wai
 import Network.Wai.Handler.Warp qualified as Warp
 import Network.Wai.Logger
 import Polysemy
 import Polysemy.Error
 import Polysemy.Input
+import Polysemy.Resource
 import RunEncodeAudioProcess
 import RunLiveStreamCheckYtDlp
 import RunYoutubeHTTP
 import Servant.Server
 import URI.ByteString (Port (..))
-import Usecases.AudioFeed qualified as UC
 import Usecases.EncodeAudio qualified as UC
 import Usecases.LiveStreamCheck qualified as UC
-import Usecases.StreamAudio qualified as UC
 import Usecases.Youtube qualified as UC
 
 startApp :: Warp.Port -> IO ()
@@ -35,23 +33,32 @@ startApp port = withStdoutLogger $ \aplogger -> do
   -- encoding); it would be great to count the bytes in the response and show
   -- that too
   let settings = Warp.setPort port $ Warp.setLogger aplogger Warp.defaultSettings
-  Warp.runSettings settings $ app port
+  concurrentLock <- newMVar ()
+  Warp.runSettings settings $ app concurrentLock port
 
-app :: Warp.Port -> Application
-app = serve Ad.api . liftServer
+app :: MVar () -> Warp.Port -> Application
+app concurrentLock port = serve Ad.api $ liftServer concurrentLock port
 
-liftServer :: Warp.Port -> Server Ad.API
-liftServer port = hoistServer Ad.api (interpretServer port) Ad.server
+liftServer :: MVar () -> Warp.Port -> Server Ad.API
+liftServer concurrentLock port = hoistServer Ad.api (interpretServer port) (Ad.server concurrentLock)
 
 interpretServer
   :: Warp.Port
   -> Sem
-      [UC.Youtube, UC.EncodeAudio, Error Ad.AudioServerError, Input Port, UC.LiveStreamCheck, Embed IO]
+      [ UC.Youtube
+      , UC.EncodeAudio
+      , Error Ad.AudioServerError
+      , Input Port
+      , UC.LiveStreamCheck
+      , Resource
+      , Embed IO
+      ]
       a
   -> Handler a
 interpretServer port =
   liftToHandler
     . runM
+    . runResource
     . runLiveStreamCheckYtDlp
     . runInputConst (Port port)
     . runError @Ad.AudioServerError
@@ -59,11 +66,4 @@ interpretServer port =
     . runYoutubeHTTP
 
 liftToHandler :: IO (Either Ad.AudioServerError x) -> Handler x
-liftToHandler = Handler . ExceptT . fmap (first handleErrors)
-
--- FIXME remove duplication with tests
-handleErrors :: Ad.AudioServerError -> ServerError
-handleErrors (Ad.DownloadAudioFeedError (UC.YoutubeFeedParseError text)) =
-  err500{errBody = TEL.encodeUtf8 . TL.fromStrict $ text}
-handleErrors (Ad.StreamAudioError (UC.LiveStreamNotReady status)) =
-  Ad.err444{errBody = "Video can't be downloaded yet; live status: " <> BSLC.pack (show status)}
+liftToHandler = Handler . ExceptT . fmap (first Ext.handleErrors)

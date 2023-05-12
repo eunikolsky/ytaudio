@@ -1,19 +1,20 @@
 module Adapters.ServiceSpec (spec) where
 
 import Adapters.Service
+import Control.Concurrent.MVar
 import Control.Monad.Except
 import Data.Bifunctor (first)
 import Data.ByteString.Lazy qualified as BSL
-import Data.ByteString.Lazy.Char8 qualified as BSLC
 import Data.Text (Text)
 import Data.Text.IO qualified as T
-import Data.Text.Lazy qualified as TL
 import Data.Text.Lazy.Encoding qualified as TEL
 import Domain.LiveStatus qualified as Dom
+import External.Errors qualified as Ext
 import Paths_ytaudio (getDataFileName)
 import Polysemy
 import Polysemy.Error
 import Polysemy.Input
+import Polysemy.Resource
 import Servant.Server
 import Test.Hspec
 import Test.Hspec.Wai
@@ -23,7 +24,6 @@ import Usecases.AudioFeed qualified as UC
 import Usecases.EncodeAudio qualified as UC
 import Usecases.LiveStreamCheck qualified as UC
 import Usecases.RunYoutubePure
-import Usecases.StreamAudio qualified as UC
 import Usecases.Youtube qualified as UC
 
 spec :: Spec
@@ -62,34 +62,39 @@ createApp :: IO Application
 createApp = do
   -- FIXME using the file from the `Domain/` directory
   youtubeFeed <- T.readFile =<< getDataFileName "test/Domain/videos.xml"
-  pure $ serve api (liftServer youtubeFeed)
+  concurrentLock <- newMVar ()
+  pure $ serve api (liftServer concurrentLock youtubeFeed)
 
 -- This is based on the code in
 -- https://thma.github.io/posts/2020-05-29-polysemy-clean-architecture.html#testing-the-rest-api
-liftServer :: Text -> Server API
-liftServer youtubeFeed = hoistServer api (interpretServer youtubeFeed) server
+liftServer :: MVar () -> Text -> Server API
+liftServer concurrentLock youtubeFeed = hoistServer api (interpretServer youtubeFeed) (server concurrentLock)
 
 interpretServer
   :: Text
-  -> Sem [UC.Youtube, UC.EncodeAudio, Error AudioServerError, Input Port, UC.LiveStreamCheck] x
+  -> Sem
+      [ UC.Youtube
+      , UC.EncodeAudio
+      , Error AudioServerError
+      , Input Port
+      , UC.LiveStreamCheck
+      , Resource
+      , Embed IO
+      ]
+      x
   -> Handler x
 interpretServer youtubeFeed =
   liftToHandler
-    . run
+    . runM
+    . runResource
     . runLiveStreamCheckPure
     . runInputConst (Port 8080)
     . runError @AudioServerError
     . runEncodeAudioPure
     . runYoutubePure (UC.ChannelId "UCnExw5tVdA3TJeb4kmCd-JQ", youtubeFeed)
 
-liftToHandler :: Either AudioServerError x -> Handler x
-liftToHandler = Handler . ExceptT . pure . first handleErrors
-
-handleErrors :: AudioServerError -> ServerError
-handleErrors (DownloadAudioFeedError (UC.YoutubeFeedParseError text)) =
-  err500{errBody = TEL.encodeUtf8 . TL.fromStrict $ text}
-handleErrors (StreamAudioError (UC.LiveStreamNotReady status)) =
-  err444{errBody = "Video can't be downloaded yet; live status: " <> BSLC.pack (show status)}
+liftToHandler :: IO (Either AudioServerError x) -> Handler x
+liftToHandler = Handler . ExceptT . fmap (first Ext.handleErrors)
 
 runEncodeAudioPure :: Sem (UC.EncodeAudio ': r) a -> Sem r a
 runEncodeAudioPure = interpret $ \case
