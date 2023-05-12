@@ -6,6 +6,7 @@ module Lib
   ) where
 
 import Adapters.Service qualified as Ad
+import Control.Concurrent.MVar
 import Control.Monad.Except
 import Data.Bifunctor (first)
 import External.Errors qualified as Ext
@@ -15,6 +16,7 @@ import Network.Wai.Logger
 import Polysemy
 import Polysemy.Error
 import Polysemy.Input
+import Polysemy.Resource
 import RunEncodeAudioProcess
 import RunLiveStreamCheckYtDlp
 import RunYoutubeHTTP
@@ -31,23 +33,32 @@ startApp port = withStdoutLogger $ \aplogger -> do
   -- encoding); it would be great to count the bytes in the response and show
   -- that too
   let settings = Warp.setPort port $ Warp.setLogger aplogger Warp.defaultSettings
-  Warp.runSettings settings $ app port
+  concurrentLock <- newMVar ()
+  Warp.runSettings settings $ app concurrentLock port
 
-app :: Warp.Port -> Application
-app = serve Ad.api . liftServer
+app :: MVar () -> Warp.Port -> Application
+app concurrentLock port = serve Ad.api $ liftServer concurrentLock port
 
-liftServer :: Warp.Port -> Server Ad.API
-liftServer port = hoistServer Ad.api (interpretServer port) Ad.server
+liftServer :: MVar () -> Warp.Port -> Server Ad.API
+liftServer concurrentLock port = hoistServer Ad.api (interpretServer port) (Ad.server concurrentLock)
 
 interpretServer
   :: Warp.Port
   -> Sem
-      [UC.Youtube, UC.EncodeAudio, Error Ad.AudioServerError, Input Port, UC.LiveStreamCheck, Embed IO]
+      [ UC.Youtube
+      , UC.EncodeAudio
+      , Error Ad.AudioServerError
+      , Input Port
+      , UC.LiveStreamCheck
+      , Resource
+      , Embed IO
+      ]
       a
   -> Handler a
 interpretServer port =
   liftToHandler
     . runM
+    . runResource
     . runLiveStreamCheckYtDlp
     . runInputConst (Port port)
     . runError @Ad.AudioServerError
