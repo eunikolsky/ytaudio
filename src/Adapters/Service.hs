@@ -146,7 +146,7 @@ releaseLockAfterConduit lock conduit = bracketP acquire release (const conduit)
     -- if we're here, the lock was already taken, so nothing to do here
     acquire = pure ()
     -- always release the lock when the response finishes
-    release _ = putStrLn "Releasing the lock" >> putMVar lock ()
+    release _ = putMVar lock ()
 
 {- | Tries to take the (concurrent) lock, runs `lockedAction` if the lock was
 taken, otherwise runs `notLockedAction`.
