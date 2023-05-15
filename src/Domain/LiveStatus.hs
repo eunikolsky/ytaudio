@@ -1,6 +1,7 @@
 module Domain.LiveStatus
   ( LiveStatus (..)
   , liveStatusFromString
+  , canBeDownloaded
   ) where
 
 {- | Defines the live status of a youtube video as returned by `yt-dlp`.
@@ -23,3 +24,10 @@ liveStatusFromString "is_upcoming" = Just IsUpcoming
 liveStatusFromString "was_live" = Just WasLive
 liveStatusFromString "post_live" = Just PostLive
 liveStatusFromString _ = Nothing
+
+-- | Returns whether a video can be downloaded based on its live status.
+canBeDownloaded :: LiveStatus -> Bool
+canBeDownloaded IsUpcoming = False
+-- this case is not clear, I haven't checked whether `yt-dlp` can download it
+canBeDownloaded PostLive = True
+canBeDownloaded _ = True
