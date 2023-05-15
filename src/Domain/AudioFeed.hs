@@ -3,7 +3,7 @@
 module Domain.AudioFeed (AudioFeed (..), dropUnavailable)
 where
 
-import Data.Map ((!))
+import Data.Map ((!?))
 import Data.Text (Text)
 import Domain.AudioFeed.Item
 import Domain.LiveStatus
@@ -51,5 +51,4 @@ dropUnavailable (Streams streams) feed =
   where
     isAvailable :: AudioFeedItem -> Bool
     isAvailable AudioFeedItem{afiGuid} =
-      -- FIXME partial function
-      canBeDownloaded $ streams ! afiGuid
+      maybe True canBeDownloaded $ streams !? afiGuid

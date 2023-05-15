@@ -11,9 +11,13 @@ import Test.Hspec
 
 spec :: Spec
 spec = do
-  describe "dropUnavailable" $
+  describe "dropUnavailable" $ do
     it "filters out upcoming streams" $
       dropUnavailable streams feed `shouldBe` filteredFeed
+
+    it "leaves videos not found in the streams" $ do
+      let feed' = feed{afItems = [mkItemWithGuid "id3"]}
+      dropUnavailable streams feed' `shouldBe` feed'
 
 streams :: Streams
 streams =
