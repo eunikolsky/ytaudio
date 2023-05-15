@@ -4,10 +4,14 @@ MAIN_TEST_TARGET = ytaudio:test:ytaudio-test
 
 ### --8<-- test and build actions --8<-- ###
 
-# `echo package.yaml stack.yaml` prints one line, and `entr` doesn't understand that
-# `print (-l)` doesn't work in `/bin/sh`
-# so `ls -1` it is
-ENTR_WATCHED_FILES = ls -1 package.yaml stack.yaml
+# `echo package.yaml stack.yaml` prints one line, and `entr` doesn't understand that;
+# `print (-l)` doesn't work in `/bin/sh`,
+# so `ls -1` it is;
+#
+# the ignored `.entr` file is for a more convenient way to restart `ghcid`:
+# simply `touch`ing any of the files doesn't work for `entr`, but writing
+# something to a file works: `:.w! .entr` in vim
+ENTR_WATCHED_FILES = ls -1 package.yaml stack.yaml .entr
 
 # something in `ghcid --test` hides the cursor, and being wrapped in `entr` doesn't
 # restore it, so this command is to restore it
