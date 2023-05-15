@@ -1,10 +1,13 @@
 {-# LANGUAGE RecordWildCards #-}
 
-module Domain.AudioFeed (AudioFeed (..))
+module Domain.AudioFeed (AudioFeed (..), dropUnavailable)
 where
 
+import Data.Map ((!))
 import Data.Text (Text)
 import Domain.AudioFeed.Item
+import Domain.LiveStatus
+import Domain.YtDlpChannelStreams
 import Text.Show.Unicode
 
 {- | Model of an audio feed with the data that can be put into RSS and can be
@@ -36,3 +39,17 @@ instance Show AudioFeed where
       , show afItems
       , ")"
       ]
+
+{- | Removes audio feeds items that are upcoming streams and thus can't be
+downloaded yet.
+-}
+dropUnavailable :: Streams -> AudioFeed -> AudioFeed
+dropUnavailable (Streams streams) feed =
+  feed
+    { afItems = filter isAvailable (afItems feed)
+    }
+  where
+    isAvailable :: AudioFeedItem -> Bool
+    isAvailable AudioFeedItem{afiGuid} =
+      -- FIXME partial function
+      canBeDownloaded $ streams ! afiGuid

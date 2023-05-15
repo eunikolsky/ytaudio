@@ -148,6 +148,7 @@ test-suite ytaudio-test
   main-is: Spec.hs
   other-modules:
       Adapters.ServiceSpec
+      Domain.AudioFeedSpec
       Domain.LiveStatusSpec
       Domain.YoutubeFeedSpec
       Domain.YtDlpChannelStreamsSpec
