@@ -4,8 +4,8 @@ module Domain.YtDlpChannelStreamsSpec (spec) where
 
 import Data.ByteString.Lazy qualified as LBS (ByteString)
 import Data.Map qualified as M
-import Domain.AudioFeed.Item (YoutubeVideoId (..))
 import Domain.LiveStatus
+import Domain.YoutubeVideoId
 import Domain.YtDlpChannelStreams
 import Test.Hspec
 import Text.RawString.QQ (r)

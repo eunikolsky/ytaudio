@@ -2,7 +2,7 @@ module RunEncodeAudioProcess (runEncodeAudioProcess) where
 
 import Data.Conduit.Process qualified as C
 import Data.Text qualified as T
-import Domain.AudioFeed.Item qualified as Dom
+import Domain.YoutubeVideoId qualified as Dom
 import Polysemy
 import System.Process
 import Usecases.EncodeAudio qualified as UC

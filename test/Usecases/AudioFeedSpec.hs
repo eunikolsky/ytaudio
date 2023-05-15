@@ -10,6 +10,7 @@ import Domain.AudioFeed hiding (AudioFeed)
 import Domain.AudioFeed qualified as Dom
 import Domain.AudioFeed.Item hiding (AudioFeedItem)
 import Domain.AudioFeed.Item qualified as Dom
+import Domain.YoutubeVideoId qualified as Dom
 import Polysemy
 import Polysemy.Error
 import Polysemy.Input
@@ -62,7 +63,7 @@ audioFeed =
     , afItems =
         [ Dom.AudioFeedItem
             { afiTitle = "мир"
-            , afiGuid = YoutubeVideoId "hC0de9"
+            , afiGuid = Dom.YoutubeVideoId "hC0de9"
             , afiPubDate = testPubDate
             , afiDescription = "описание\nздесь"
             , afiLink = "https://youtube.com/watch?v=hC0de9"

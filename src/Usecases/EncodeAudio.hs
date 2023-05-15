@@ -7,7 +7,7 @@ module Usecases.EncodeAudio
 
 import Conduit
 import Data.ByteString (ByteString)
-import Domain.AudioFeed.Item qualified as Dom
+import Domain.YoutubeVideoId qualified as Dom
 import Polysemy
 
 -- | Effect that reencodes streaming audio from youtube as MP3.

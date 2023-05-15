@@ -3,8 +3,8 @@ module RunLiveStreamCheckYtDlp (runLiveStreamCheckYtDlp) where
 import Data.Char
 import Data.List (dropWhileEnd)
 import Data.Text qualified as T
-import Domain.AudioFeed.Item qualified as Dom
 import Domain.LiveStatus qualified as Dom
+import Domain.YoutubeVideoId qualified as Dom
 import Polysemy
 import System.Process
 import Usecases.LiveStreamCheck qualified as UC

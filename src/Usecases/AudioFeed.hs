@@ -17,6 +17,7 @@ import Domain.AudioFeed hiding (AudioFeed)
 import Domain.AudioFeed qualified as Dom
 import Domain.AudioFeed.Item hiding (AudioFeedItem)
 import Domain.AudioFeed.Item qualified as Dom
+import Domain.YoutubeVideoId hiding (YoutubeVideoId)
 import Polysemy
 import Polysemy.Error
 import Polysemy.Input

@@ -11,8 +11,8 @@ import Data.Conduit.Binary (sourceLbs)
 import Data.Conduit.JSON.NewlineDelimited qualified as ND
 import Data.Map (Map)
 import Data.Map qualified as M
-import Domain.AudioFeed.Item (YoutubeVideoId (YoutubeVideoId))
 import Domain.LiveStatus
+import Domain.YoutubeVideoId
 
 -- | Map of Youtube video ids to their live status.
 newtype Streams = Streams (Map YoutubeVideoId LiveStatus)

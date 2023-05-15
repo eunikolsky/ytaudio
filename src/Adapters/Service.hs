@@ -9,8 +9,8 @@ import Data.Binary.Builder qualified as BB
 import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
 import Data.Text (Text)
-import Domain.AudioFeed.Item qualified as Dom
 import Domain.YoutubeFeed qualified as Dom.YoutubeFeed
+import Domain.YoutubeVideoId qualified as Dom
 import Network.HTTP.Media ((//))
 import Polysemy
 import Polysemy.Error

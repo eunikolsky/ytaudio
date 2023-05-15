@@ -2,8 +2,8 @@ module Usecases.StreamAudio (streamAudio, StreamAudioError (..)) where
 
 import Conduit
 import Data.ByteString (ByteString)
-import Domain.AudioFeed.Item qualified as Dom
 import Domain.LiveStatus qualified as Dom
+import Domain.YoutubeVideoId qualified as Dom
 import Polysemy
 import Polysemy.Error
 import Usecases.EncodeAudio
