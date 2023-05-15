@@ -79,6 +79,7 @@ default-extensions:
 library:
   source-dirs: src
   dependencies:
+  - aeson
   - binary
   - bytestring
   - conduit
@@ -87,6 +88,7 @@ library:
   - http-conduit
   - http-media
   - mtl
+  - ndjson-conduit
   - process
   - rss-conduit
   - servant-conduit

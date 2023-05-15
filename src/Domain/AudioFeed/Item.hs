@@ -11,7 +11,7 @@ import Text.Show.Unicode
 RSS item's `guid` and `enclosure`'s URL is derived from it.
 -}
 newtype YoutubeVideoId = YoutubeVideoId {getYoutubeVideoId :: Text}
-  deriving newtype (Show, Eq)
+  deriving newtype (Show, Eq, Ord)
 
 {- | Model of an audio feed item with the data that can be put into RSS and can
 be parsed from a Youtube feed. Contains only the fields that are changed in
