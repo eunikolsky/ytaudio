@@ -25,18 +25,14 @@ runLiveStreamCheckYtDlp = interpret $ \case
 
 getLiveStatusProc :: Dom.YoutubeVideoId -> CreateProcess
 getLiveStatusProc videoId =
-  ( proc
-      "yt-dlp"
-      [ "--ignore-no-formats-error"
-      , "-O"
-      , "live_status"
-      , "https://www.youtube.com/watch?v=" <> (T.unpack . Dom.getYoutubeVideoId $ videoId)
-      ]
-  )
-    { -- ignore stderr as yt-dlp complains about unavailable formats, which
-      -- is expected for upcoming live streams
-      std_err = CreatePipe
-    }
+  proc
+    "yt-dlp"
+    [ "--ignore-no-formats-error"
+    , "--no-warnings"
+    , "-O"
+    , "live_status"
+    , "https://www.youtube.com/watch?v=" <> (T.unpack . Dom.getYoutubeVideoId $ videoId)
+    ]
 
 -- https://stackoverflow.com/questions/6270324/in-haskell-how-do-you-trim-whitespace-from-the-beginning-and-end-of-a-string/38283069#38283069
 trim :: String -> String
