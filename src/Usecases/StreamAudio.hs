@@ -2,8 +2,8 @@ module Usecases.StreamAudio (streamAudio, StreamAudioError (..)) where
 
 import Conduit
 import Data.ByteString (ByteString)
-import Domain.AudioFeed.Item qualified as Dom
 import Domain.LiveStatus qualified as Dom
+import Domain.YoutubeVideoId qualified as Dom
 import Polysemy
 import Polysemy.Error
 import Usecases.EncodeAudio
@@ -24,13 +24,6 @@ streamAudio
 -- FIXME add tests
 streamAudio videoId = do
   liveStatus <- liveStreamCheck videoId
-  if canBeDownloaded liveStatus
+  if Dom.canBeDownloaded liveStatus
     then encodeAudio videoId
     else throw $ LiveStreamNotReady liveStatus
-
--- | Returns whether a video can be downloaded based on its live status.
-canBeDownloaded :: Dom.LiveStatus -> Bool
-canBeDownloaded Dom.IsUpcoming = False
--- this case is not clear, I haven't checked whether `yt-dlp` can download it
-canBeDownloaded Dom.PostLive = True
-canBeDownloaded _ = True

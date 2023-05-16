@@ -9,6 +9,7 @@ import Domain.AudioFeed qualified as Dom
 import Domain.AudioFeed.Item hiding (AudioFeedItem)
 import Domain.AudioFeed.Item qualified as Dom
 import Domain.YoutubeFeed (parse)
+import Domain.YoutubeVideoId qualified as Dom
 import Paths_ytaudio (getDataFileName)
 import Test.Hspec
 import Text.RawString.QQ (r)
@@ -40,7 +41,7 @@ feed =
     , afItems =
         [ Dom.AudioFeedItem
             { afiTitle = "#1283 Переговоры начнутся осенью"
-            , afiGuid = YoutubeVideoId "Cl3aOUbGVbE"
+            , afiGuid = Dom.YoutubeVideoId "Cl3aOUbGVbE"
             , afiPubDate = read "2023-04-30 02:21:51 UTC"
             , afiDescription =
                 "00:00 Комментарии\n06:49 Еврей из США не может рассуждать\n09:50 Пять острых проблем Украины \n14:17 Комментарии\n…"
@@ -48,7 +49,7 @@ feed =
             }
         , Dom.AudioFeedItem
             { afiTitle = "#1282 Русский народ бомбит спящих жителей Умани"
-            , afiGuid = YoutubeVideoId "o2lki2W8nGA"
+            , afiGuid = Dom.YoutubeVideoId "o2lki2W8nGA"
             , afiPubDate = read "2023-04-29 02:21:58 UTC"
             , afiDescription =
                 [r|00:00 Комментарии

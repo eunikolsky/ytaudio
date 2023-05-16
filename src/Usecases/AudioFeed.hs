@@ -17,6 +17,7 @@ import Domain.AudioFeed hiding (AudioFeed)
 import Domain.AudioFeed qualified as Dom
 import Domain.AudioFeed.Item hiding (AudioFeedItem)
 import Domain.AudioFeed.Item qualified as Dom
+import Domain.YoutubeVideoId hiding (YoutubeVideoId)
 import Polysemy
 import Polysemy.Error
 import Polysemy.Input
@@ -40,7 +41,11 @@ downloadAudioFeed
 downloadAudioFeed parseFeed channelId = do
   feed <- getChannelFeed channelId
   case parseFeed feed of
-    Just audioFeed -> mkRssDoc audioFeed
+    Just audioFeed -> do
+      -- TODO download these in parallel
+      streams <- getChannelStreams channelId
+      let downloadableAudioFeed = Dom.dropUnavailable streams audioFeed
+      mkRssDoc downloadableAudioFeed
     Nothing -> throw $ YoutubeFeedParseError feed
 
 {-

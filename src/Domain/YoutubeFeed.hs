@@ -15,6 +15,7 @@ import Domain.AudioFeed (AudioFeed (..))
 import Domain.AudioFeed hiding (AudioFeed)
 import Domain.AudioFeed qualified as Dom
 import Domain.AudioFeed.Item as Dom
+import Domain.YoutubeVideoId qualified as Dom
 import Text.XML.Light
 
 -- TODO use `xml-conduit` instead of using another XML library;

@@ -5,8 +5,8 @@ module Usecases.LiveStreamCheck
   , liveStreamCheck
   ) where
 
-import Domain.AudioFeed.Item qualified as Dom
 import Domain.LiveStatus qualified as Dom
+import Domain.YoutubeVideoId qualified as Dom
 import Polysemy
 
 data LiveStreamCheck m a where

@@ -5,7 +5,7 @@ cabal-version: 1.12
 -- see: https://github.com/sol/hpack
 
 name:           ytaudio
-version:        0.1.4
+version:        0.2.0
 description:    Please see the README on GitHub at <https://github.com/githubuser/ytaudio#readme>
 homepage:       https://github.com/githubuser/ytaudio#readme
 bug-reports:    https://github.com/githubuser/ytaudio/issues
@@ -33,11 +33,14 @@ library
       Domain.AudioFeed.Item
       Domain.LiveStatus
       Domain.YoutubeFeed
+      Domain.YoutubeVideoId
+      Domain.YtDlpChannelStreams
       External.Errors
       Lib
       RunEncodeAudioProcess
       RunLiveStreamCheckYtDlp
       RunYoutubeHTTP
+      SkipLiveStreamCheck
       Usecases.AudioFeed
       Usecases.EncodeAudio
       Usecases.LiveStreamCheck
@@ -72,7 +75,8 @@ library
       TypeFamilies
   ghc-options: -Wall -Wcompat -Widentities -fhide-source-paths -Wnoncanonical-monad-instances -Werror=incomplete-record-updates -Werror=incomplete-patterns -Werror=incomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wmissing-deriving-strategies -Wunused-packages -Werror=missing-fields -Werror=missing-methods -Wpartial-fields -Wredundant-constraints -Werror=empty-enumerations -Werror=missing-home-modules -fplugin=Polysemy.Plugin -O2 -flate-specialise -fspecialise-aggressively
   build-depends:
-      base >=4.7 && <5
+      aeson
+    , base >=4.7 && <5
     , binary
     , bytestring
     , conduit
@@ -81,6 +85,7 @@ library
     , http-conduit
     , http-media
     , mtl
+    , ndjson-conduit
     , polysemy
     , polysemy-plugin
     , process
@@ -144,8 +149,10 @@ test-suite ytaudio-test
   main-is: Spec.hs
   other-modules:
       Adapters.ServiceSpec
+      Domain.AudioFeedSpec
       Domain.LiveStatusSpec
       Domain.YoutubeFeedSpec
+      Domain.YtDlpChannelStreamsSpec
       Usecases.AudioFeedSpec
       Usecases.RunYoutubePure
       Paths_ytaudio

@@ -21,6 +21,7 @@ import RunEncodeAudioProcess
 import RunLiveStreamCheckYtDlp
 import RunYoutubeHTTP
 import Servant.Server
+import SkipLiveStreamCheck
 import URI.ByteString (Port (..))
 import Usecases.EncodeAudio qualified as UC
 import Usecases.LiveStreamCheck qualified as UC
@@ -59,7 +60,9 @@ interpretServer port =
   liftToHandler
     . runM
     . runResource
-    . runLiveStreamCheckYtDlp
+    -- note the separation of concerns: the usecase doesn't need to change, and
+    -- the outer layer decides whether to use the live stream check
+    . (if useLiveStreamCheck then runLiveStreamCheckYtDlp else skipLiveStreamCheck)
     . runInputConst (Port port)
     . runError @Ad.AudioServerError
     . runEncodeAudioProcess
@@ -67,3 +70,17 @@ interpretServer port =
 
 liftToHandler :: IO (Either Ad.AudioServerError x) -> Handler x
 liftToHandler = Handler . ExceptT . fmap (first Ext.handleErrors)
+
+{- | The live stream check before downloading each mp3 is disabled because it
+slows down the response and the generated audio feed doesn't contain upcoming
+streams.
+
+The user may still use the audio endpoint directly w/o the feed, which isn't
+the main usecase. To separate these two cases, the feed should produce signed
+URLs. More information:
+https://blog.ploeh.dk/2020/10/26/fit-urls/#41cdd42bac1b4bd5a573070ee27e902d
+
+TODO enable live stream check for unsigned URLs
+-}
+useLiveStreamCheck :: Bool
+useLiveStreamCheck = False
