@@ -64,6 +64,8 @@ default-extensions:
 - NamedFieldPuns
 - NumericUnderscores
 - OverloadedStrings
+- ScopedTypeVariables
+- TypeApplications
 # for polysemy:
 - DataKinds
 - FlexibleContexts
@@ -71,8 +73,6 @@ default-extensions:
 - LambdaCase
 - PolyKinds
 - RankNTypes
-- ScopedTypeVariables
-- TypeApplications
 - TypeOperators
 - TypeFamilies
 
