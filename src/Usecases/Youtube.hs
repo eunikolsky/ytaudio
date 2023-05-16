@@ -1,9 +1,10 @@
 {-# LANGUAGE TemplateHaskell #-}
 
-module Usecases.Youtube (Youtube (..), ChannelId (..), getChannelFeed)
+module Usecases.Youtube (Youtube (..), ChannelId (..), getChannelFeed, getChannelStreams)
 where
 
 import Data.Text (Text)
+import Domain.YtDlpChannelStreams qualified as Dom
 import Polysemy
 
 -- | Youtube channel ID.
@@ -17,5 +18,7 @@ data Youtube m a where
 
   -- | Downloads a youtube channel feed.
   GetChannelFeed :: ChannelId -> Youtube m Text
+  -- | Returns the streams status of a youtube channel.
+  GetChannelStreams :: ChannelId -> Youtube m Dom.Streams
 
 makeSem ''Youtube

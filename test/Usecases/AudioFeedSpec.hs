@@ -2,6 +2,8 @@
 
 module Usecases.AudioFeedSpec (spec) where
 
+import Data.Functor
+import Data.Map qualified as M
 import Data.Set qualified as S
 import Data.Text (Text)
 import Data.Time.Clock
@@ -10,7 +12,9 @@ import Domain.AudioFeed hiding (AudioFeed)
 import Domain.AudioFeed qualified as Dom
 import Domain.AudioFeed.Item hiding (AudioFeedItem)
 import Domain.AudioFeed.Item qualified as Dom
+import Domain.LiveStatus qualified as Dom
 import Domain.YoutubeVideoId qualified as Dom
+import Domain.YtDlpChannelStreams qualified as Dom
 import Polysemy
 import Polysemy.Error
 import Polysemy.Input
@@ -25,18 +29,33 @@ spec :: Spec
 spec = do
   describe "getAudioFeed" $ do
     it "creates RSS doc for youtube channel" $ do
-      runDownloadAudioFeed audioFeed channelId `shouldBe` Right rssDoc
+      let streams = Dom.Streams mempty
+      runDownloadAudioFeed (audioFeed []) streams channelId `shouldBe` Right rssDoc
+
+    it "filters out upcoming streams" $ do
+      let streams =
+            Dom.Streams $
+              M.fromList
+                [ (Dom.YoutubeVideoId "hC0de9", Dom.WasLive)
+                , (Dom.YoutubeVideoId "foo", Dom.IsUpcoming)
+                , (Dom.YoutubeVideoId "bar", Dom.IsUpcoming)
+                ]
+      runDownloadAudioFeed
+        (audioFeed [Dom.YoutubeVideoId "foo", Dom.YoutubeVideoId "bar"])
+        streams
+        channelId
+        `shouldBe` Right rssDoc
 
 {- | Runs the `downloadAudioFeed` usecase purely, mocking the youtube downloader
 to return an empty string and then using `audioFeed` as the parsed value.
 -}
 runDownloadAudioFeed
-  :: Dom.AudioFeed -> UC.ChannelId -> Either UC.DownloadAudioFeedError RssDocument'
-runDownloadAudioFeed feed =
+  :: Dom.AudioFeed -> Dom.Streams -> UC.ChannelId -> Either UC.DownloadAudioFeedError RssDocument'
+runDownloadAudioFeed feed streams =
   run
     . runInputConst (Port 8080)
     . runError
-    . runYoutubePure (channelId, testDownloadedText)
+    . runYoutubePure (channelId, testDownloadedText, streams)
     . UC.downloadAudioFeed audioFeedParser
   where
     audioFeedParser text
@@ -55,21 +74,25 @@ testDownloadedText = "downloaded text"
 testPubDate :: UTCTime
 testPubDate = read "2023-02-01 08:00:00 UTC"
 
-audioFeed :: Dom.AudioFeed
-audioFeed =
+audioFeed :: [Dom.YoutubeVideoId] -> Dom.AudioFeed
+audioFeed extraItemGuids =
   Dom.AudioFeed
     { afTitle = "привет"
     , afLink = "http://youtube.com/user/123"
-    , afItems =
-        [ Dom.AudioFeedItem
-            { afiTitle = "мир"
-            , afiGuid = Dom.YoutubeVideoId "hC0de9"
-            , afiPubDate = testPubDate
-            , afiDescription = "описание\nздесь"
-            , afiLink = "https://youtube.com/watch?v=hC0de9"
-            }
-        ]
+    , afItems
     }
+  where
+    afItems =
+      itemGuids <&> \afiGuid ->
+        Dom.AudioFeedItem
+          { afiTitle = "мир"
+          , afiGuid
+          , afiPubDate = testPubDate
+          , afiDescription = "описание\nздесь"
+          , afiLink = "https://youtube.com/watch?v=hC0de9"
+          }
+
+    itemGuids = Dom.YoutubeVideoId "hC0de9" : extraItemGuids
 
 rssDoc :: RssDocument'
 rssDoc =

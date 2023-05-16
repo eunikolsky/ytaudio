@@ -9,6 +9,7 @@ import Data.Text (Text)
 import Data.Text.IO qualified as T
 import Data.Text.Lazy.Encoding qualified as TEL
 import Domain.LiveStatus qualified as Dom
+import Domain.YtDlpChannelStreams qualified as Dom
 import External.Errors qualified as Ext
 import Paths_ytaudio (getDataFileName)
 import Polysemy
@@ -63,15 +64,17 @@ createApp = do
   -- FIXME using the file from the `Domain/` directory
   youtubeFeed <- T.readFile =<< getDataFileName "test/Domain/videos.xml"
   concurrentLock <- newMVar ()
-  pure $ serve api (liftServer concurrentLock youtubeFeed)
+  let streams = Dom.Streams mempty
+  pure $ serve api (liftServer concurrentLock streams youtubeFeed)
 
 -- This is based on the code in
 -- https://thma.github.io/posts/2020-05-29-polysemy-clean-architecture.html#testing-the-rest-api
-liftServer :: MVar () -> Text -> Server API
-liftServer concurrentLock youtubeFeed = hoistServer api (interpretServer youtubeFeed) (server concurrentLock)
+liftServer :: MVar () -> Dom.Streams -> Text -> Server API
+liftServer concurrentLock streams youtubeFeed = hoistServer api (interpretServer streams youtubeFeed) (server concurrentLock)
 
 interpretServer
-  :: Text
+  :: Dom.Streams
+  -> Text
   -> Sem
       [ UC.Youtube
       , UC.EncodeAudio
@@ -83,7 +86,7 @@ interpretServer
       ]
       x
   -> Handler x
-interpretServer youtubeFeed =
+interpretServer streams youtubeFeed =
   liftToHandler
     . runM
     . runResource
@@ -91,7 +94,7 @@ interpretServer youtubeFeed =
     . runInputConst (Port 8080)
     . runError @AudioServerError
     . runEncodeAudioPure
-    . runYoutubePure (UC.ChannelId "UCnExw5tVdA3TJeb4kmCd-JQ", youtubeFeed)
+    . runYoutubePure (UC.ChannelId "UCnExw5tVdA3TJeb4kmCd-JQ", youtubeFeed, streams)
 
 liftToHandler :: IO (Either AudioServerError x) -> Handler x
 liftToHandler = Handler . ExceptT . fmap (first Ext.handleErrors)
