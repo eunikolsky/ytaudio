@@ -21,8 +21,6 @@ description:         Please see the README on GitHub at <https://github.com/gith
 
 dependencies:
 - base >= 4.7 && < 5
-- polysemy
-- polysemy-plugin
 
 ghc-options:
 - -Wall
@@ -43,11 +41,6 @@ ghc-options:
 - -Wredundant-constraints
 - -Werror=empty-enumerations
 - -Werror=missing-home-modules
-# for polysemy:
-- -fplugin=Polysemy.Plugin
-- -O2
-- -flate-specialise
-- -fspecialise-aggressively
 
 default-extensions:
 # most of the list is copied from summoner
@@ -89,6 +82,8 @@ library:
   - http-media
   - mtl
   - ndjson-conduit
+  - polysemy
+  - polysemy-plugin
   - process
   - rss-conduit
   - servant-conduit
@@ -103,6 +98,12 @@ library:
   - warp
   - xml
   - xml-conduit
+  ghc-options:
+  # for polysemy:
+  - -fplugin=Polysemy.Plugin
+  - -O2
+  - -flate-specialise
+  - -fspecialise-aggressively
 
 executables:
   ytaudio:
@@ -140,6 +141,8 @@ tests:
     - hspec
     - hspec-wai
     - mtl
+    - polysemy
+    - polysemy-plugin
     - raw-strings-qq
     - rss-conduit
     - servant-server
@@ -148,3 +151,9 @@ tests:
     - unicode-show
     - uri-bytestring
     - ytaudio
+    ghc-options:
+    # for polysemy:
+    - -fplugin=Polysemy.Plugin
+    - -O2
+    - -flate-specialise
+    - -fspecialise-aggressively
