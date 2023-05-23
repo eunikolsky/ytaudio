@@ -134,6 +134,11 @@ tests:
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
+    # for polysemy:
+    - -fplugin=Polysemy.Plugin
+    - -O2
+    - -flate-specialise
+    - -fspecialise-aggressively
     dependencies:
     - base
     - bytestring
@@ -151,9 +156,3 @@ tests:
     - unicode-show
     - uri-bytestring
     - ytaudio
-    ghc-options:
-    # for polysemy:
-    - -fplugin=Polysemy.Plugin
-    - -O2
-    - -flate-specialise
-    - -fspecialise-aggressively
