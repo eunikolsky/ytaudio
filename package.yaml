@@ -140,6 +140,7 @@ tests:
     - -flate-specialise
     - -fspecialise-aggressively
     dependencies:
+    - aeson
     - base
     - bytestring
     - containers

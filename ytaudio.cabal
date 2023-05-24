@@ -34,6 +34,7 @@ library
       Domain.LiveStatus
       Domain.YoutubeFeed
       Domain.YoutubeVideoId
+      Domain.YtDlpChannelItems
       Domain.YtDlpChannelStreams
       External.Errors
       Lib
@@ -150,6 +151,7 @@ test-suite ytaudio-test
       Domain.AudioFeedSpec
       Domain.LiveStatusSpec
       Domain.YoutubeFeedSpec
+      Domain.YtDlpChannelItemsSpec
       Domain.YtDlpChannelStreamsSpec
       Usecases.AudioFeedSpec
       Usecases.RunYoutubePure
@@ -181,7 +183,8 @@ test-suite ytaudio-test
       TypeFamilies
   ghc-options: -Wall -Wcompat -Widentities -fhide-source-paths -Wnoncanonical-monad-instances -Werror=incomplete-record-updates -Werror=incomplete-patterns -Werror=incomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wmissing-deriving-strategies -Wunused-packages -Werror=missing-fields -Werror=missing-methods -Wpartial-fields -Wredundant-constraints -Werror=empty-enumerations -Werror=missing-home-modules -threaded -rtsopts -with-rtsopts=-N -fplugin=Polysemy.Plugin -O2 -flate-specialise -fspecialise-aggressively
   build-depends:
-      base
+      aeson
+    , base
     , bytestring
     , containers
     , hspec
