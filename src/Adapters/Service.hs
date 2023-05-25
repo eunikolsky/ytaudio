@@ -18,9 +18,6 @@ import Polysemy.Input
 import Polysemy.Resource
 import Servant
 import Servant.Conduit ()
-import Text.RSS.Conduit.Render (renderRssDocument)
-import Text.RSS.Types
-import Text.XML.Stream.Render
 import URI.ByteString (Port)
 import Usecases.AudioFeed qualified as UC
 import Usecases.EncodeAudio qualified as UC
@@ -36,10 +33,8 @@ newtype ChannelId = ChannelId {unChannelId :: UC.ChannelId}
 instance FromHttpApiData ChannelId where
   parseUrlPiece = fmap (ChannelId . UC.ChannelId) . parseUrlPiece
 
--- FIXME move to a separate module
-instance MimeRender PlainText RssDocument' where
-  -- TODO stream the rendered document directly?
-  mimeRender _ doc = BB.toLazyByteString . runConduitPure $ renderRssDocument doc .| renderBuilder def .| foldC
+instance MimeRender PlainText BB.Builder where
+  mimeRender _ = BB.toLazyByteString
 
 instance FromHttpApiData Dom.YoutubeVideoId where
   parseUrlPiece = fmap Dom.YoutubeVideoId . parseUrlPiece
@@ -54,7 +49,9 @@ instance MimeRender MP3 ByteString where
 
 -- FIXME `application/rss+xml`
 type API =
-  "feed" :> Capture "channelId" ChannelId :> Get '[PlainText] RssDocument'
+  "feed"
+    :> Capture "channelId" ChannelId
+    :> StreamGet NoFraming PlainText (ConduitT () BB.Builder IO ())
     :<|> "yt"
       :> Capture "videoid" Dom.YoutubeVideoId
       :> StreamGet
@@ -90,9 +87,9 @@ server
 server concurrentLock = getAudioFeed :<|> streamAudio concurrentLock
 
 getAudioFeed
-  :: (Member UC.Youtube r, Member (Error AudioServerError) r, Member (Input Port) r)
+  :: (Members [UC.Youtube, Error AudioServerError, Input Port] r, Monad m)
   => ChannelId
-  -> Sem r RssDocument'
+  -> Sem r (ConduitT () BB.Builder m ())
 getAudioFeed = mapError DownloadAudioFeedError . UC.downloadAudioFeed Dom.YoutubeFeed.parse . unChannelId
 
 {- | Re-encode and stream audio to the client. Since the usecase is not

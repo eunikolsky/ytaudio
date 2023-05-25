@@ -7,6 +7,9 @@ where
 
 -- `Domain` types are imported with the `Dom.` prefix, whereas functions and
 -- field names are imported directly to reduce noise
+
+import Conduit
+import Data.Binary.Builder qualified as BB
 import Data.Either
 import Data.Set qualified as S
 import Data.Text (Text)
@@ -21,7 +24,9 @@ import Domain.YoutubeVideoId hiding (YoutubeVideoId)
 import Polysemy
 import Polysemy.Error
 import Polysemy.Input
+import Text.RSS.Conduit.Render
 import Text.RSS.Types
+import Text.XML.Stream.Render
 import URI.ByteString
 import Usecases.Youtube
 
@@ -29,14 +34,15 @@ import Usecases.Youtube
 newtype DownloadAudioFeedError = YoutubeFeedParseError Text
   deriving stock (Show, Eq)
 
--- Audio feed on the `Usecases` layer is an `RssDocument'` because that's the
--- form that can be directly serialized to XML (with `rss-conduit`).
+-- Audio feed on the `Usecases` layer is a conduit of byte strings (builders)
+-- because all the feed's items may not be available immediately and we need to
+-- stream them as they become available.
 downloadAudioFeed
   -- TODO `Port` comes from `uri-bytestring` — is this fine?
-  :: (Member Youtube r, Member (Error DownloadAudioFeedError) r, Member (Input Port) r)
+  :: (Members [Youtube, Error DownloadAudioFeedError, Input Port] r, Monad m)
   => (Text -> Maybe Dom.AudioFeed)
   -> ChannelId
-  -> Sem r RssDocument'
+  -> Sem r (ConduitT () BB.Builder m ())
 -- TODO should `parseFeed` be a separate effect, even though it's a pure function?
 downloadAudioFeed parseFeed channelId = do
   feed <- getChannelFeed channelId
@@ -45,7 +51,8 @@ downloadAudioFeed parseFeed channelId = do
       -- TODO download these in parallel
       streams <- getChannelStreams channelId
       let downloadableAudioFeed = Dom.dropUnavailable streams audioFeed
-      mkRssDoc downloadableAudioFeed
+      doc <- mkRssDoc downloadableAudioFeed
+      pure $ renderRssDocument doc .| renderBuilder def
     Nothing -> throw $ YoutubeFeedParseError feed
 
 {-
