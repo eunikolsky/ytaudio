@@ -25,6 +25,18 @@ import URI.ByteString.QQ
 import Usecases.AudioFeed qualified as UC
 import Usecases.RunYoutubePure
 
+{-
+ - There are at least two possible fixes here:
+ - 0. Create an `RssStreamingDocument` with only the required fields (for the
+ - usecase) where items are a conduit of `RssItem`s instead of a plain list.
+ - This allows to collect the entire document in the test and compare it as
+ - before. However this introduces yet another rss document type (on the usecase
+ - layer), which is probably an overkill.
+ - 1. Make `downloadAudioFeed` return a conduit of `Event`s, which can be passed
+ - directly to the RSS parser in the test to recover the `RssDocument'` and
+ - compare it as before.
+ -}
+
 spec :: Spec
 spec = do
   describe "getAudioFeed" $ do
