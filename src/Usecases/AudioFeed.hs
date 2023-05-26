@@ -1,7 +1,6 @@
 module Usecases.AudioFeed
   ( downloadAudioFeed
   , DownloadAudioFeedError (..)
-  , ChannelId (..)
   )
 where
 
@@ -28,6 +27,7 @@ import Text.RSS.Conduit.Render
 import Text.RSS.Types
 import Text.XML.Stream.Render
 import URI.ByteString
+import Usecases.FeedConfig
 import Usecases.Youtube
 
 -- | Errors that can happen in the `downloadAudioFeed` usecase.

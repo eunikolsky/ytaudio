@@ -23,6 +23,7 @@ import Text.RSS.Types
 import URI.ByteString (Port (..))
 import URI.ByteString.QQ
 import Usecases.AudioFeed qualified as UC
+import Usecases.FeedConfig qualified as UC
 import Usecases.RunYoutubePure
 
 {-

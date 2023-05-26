@@ -1,15 +1,12 @@
 {-# LANGUAGE TemplateHaskell #-}
 
-module Usecases.Youtube (Youtube (..), ChannelId (..), getChannelFeed, getChannelStreams)
+module Usecases.Youtube (Youtube (..), getChannelFeed, getChannelStreams)
 where
 
 import Data.Text (Text)
 import Domain.YtDlpChannelStreams qualified as Dom
 import Polysemy
-
--- | Youtube channel ID.
-newtype ChannelId = ChannelId {unChannelId :: Text}
-  deriving newtype (Show, Eq)
+import Usecases.FeedConfig
 
 -- | Effect that provides access to youtube.
 data Youtube m a where

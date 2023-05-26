@@ -21,6 +21,8 @@ import Servant.Conduit ()
 import URI.ByteString (Port)
 import Usecases.AudioFeed qualified as UC
 import Usecases.EncodeAudio qualified as UC
+import Usecases.FeedConfig qualified as UC
+import Usecases.GetFeedConfig qualified as UC
 import Usecases.LiveStreamCheck qualified as UC
 import Usecases.StreamAudio qualified as UC
 import Usecases.Youtube qualified as UC
@@ -52,6 +54,10 @@ type API =
   "feed"
     :> Capture "channelId" ChannelId
     :> StreamGet NoFraming PlainText (ConduitT () BB.Builder IO ())
+    :<|> "feed"
+      :> Capture "channelId" ChannelId
+      :> "config"
+      :> Get '[JSON] UC.FeedConfig
     :<|> "yt"
       :> Capture "videoid" Dom.YoutubeVideoId
       :> StreamGet
@@ -84,13 +90,16 @@ server
      )
   => MVar ()
   -> ServerT API (Sem r)
-server concurrentLock = getAudioFeed :<|> streamAudio concurrentLock
+server concurrentLock = getAudioFeed :<|> getFeedConfig :<|> streamAudio concurrentLock
 
 getAudioFeed
   :: (Members [UC.Youtube, Error AudioServerError, Input Port] r, Monad m)
   => ChannelId
   -> Sem r (ConduitT () BB.Builder m ())
 getAudioFeed = mapError DownloadAudioFeedError . UC.downloadAudioFeed Dom.YoutubeFeed.parse . unChannelId
+
+getFeedConfig :: ChannelId -> Sem r UC.FeedConfig
+getFeedConfig = UC.getFeedConfig . unChannelId
 
 {- | Re-encode and stream audio to the client. Since the usecase is not
 concurrent-friendly [1] at the moment, the server has to allow only one mp3

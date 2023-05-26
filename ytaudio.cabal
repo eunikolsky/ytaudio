@@ -44,6 +44,8 @@ library
       SkipLiveStreamCheck
       Usecases.AudioFeed
       Usecases.EncodeAudio
+      Usecases.FeedConfig
+      Usecases.GetFeedConfig
       Usecases.LiveStreamCheck
       Usecases.StreamAudio
       Usecases.Youtube

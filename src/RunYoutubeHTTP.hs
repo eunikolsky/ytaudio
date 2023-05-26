@@ -9,6 +9,7 @@ import Domain.YtDlpChannelStreams qualified as Dom.YtDlpChannelStreams
 import Network.HTTP.Simple
 import Polysemy
 import System.Process
+import Usecases.FeedConfig qualified as UC
 import Usecases.Youtube qualified as UC
 
 {- | Interprets the `Usecases.Youtube` effect in terms of external HTTP calls

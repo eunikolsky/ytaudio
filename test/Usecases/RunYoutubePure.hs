@@ -3,6 +3,7 @@ module Usecases.RunYoutubePure (runYoutubePure) where
 import Data.Text (Text)
 import Domain.YtDlpChannelStreams qualified as Dom
 import Polysemy
+import Usecases.FeedConfig qualified as UC
 import Usecases.Youtube qualified as UC
 
 {- | Runs the `Usecases.Youtube` effect purely: if the `channelId` matches the

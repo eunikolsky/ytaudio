@@ -21,8 +21,8 @@ import Test.Hspec
 import Test.Hspec.Wai
 import Text.Show.Unicode
 import URI.ByteString (Port (..))
-import Usecases.AudioFeed qualified as UC
 import Usecases.EncodeAudio qualified as UC
+import Usecases.FeedConfig qualified as UC
 import Usecases.LiveStreamCheck qualified as UC
 import Usecases.RunYoutubePure
 import Usecases.Youtube qualified as UC
