@@ -5,7 +5,7 @@ cabal-version: 1.12
 -- see: https://github.com/sol/hpack
 
 name:           ytaudio
-version:        0.2.0
+version:        0.3.0
 description:    Please see the README on GitHub at <https://github.com/githubuser/ytaudio#readme>
 homepage:       https://github.com/githubuser/ytaudio#readme
 bug-reports:    https://github.com/githubuser/ytaudio/issues
@@ -34,6 +34,7 @@ library
       Domain.LiveStatus
       Domain.YoutubeFeed
       Domain.YoutubeVideoId
+      Domain.YtDlpChannelItems
       Domain.YtDlpChannelStreams
       External.Errors
       Lib
@@ -43,7 +44,10 @@ library
       SkipLiveStreamCheck
       Usecases.AudioFeed
       Usecases.EncodeAudio
+      Usecases.FeedConfig
+      Usecases.GetFeedConfig
       Usecases.LiveStreamCheck
+      Usecases.RssConduitExt
       Usecases.StreamAudio
       Usecases.Youtube
   other-modules:
@@ -84,6 +88,7 @@ library
     , containers
     , http-conduit
     , http-media
+    , microlens
     , mtl
     , ndjson-conduit
     , polysemy
@@ -102,6 +107,7 @@ library
     , warp
     , xml
     , xml-conduit
+    , xml-types
   default-language: Haskell2010
 
 executable ytaudio
@@ -150,6 +156,7 @@ test-suite ytaudio-test
       Domain.AudioFeedSpec
       Domain.LiveStatusSpec
       Domain.YoutubeFeedSpec
+      Domain.YtDlpChannelItemsSpec
       Domain.YtDlpChannelStreamsSpec
       Usecases.AudioFeedSpec
       Usecases.RunYoutubePure
@@ -181,7 +188,8 @@ test-suite ytaudio-test
       TypeFamilies
   ghc-options: -Wall -Wcompat -Widentities -fhide-source-paths -Wnoncanonical-monad-instances -Werror=incomplete-record-updates -Werror=incomplete-patterns -Werror=incomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wmissing-deriving-strategies -Wunused-packages -Werror=missing-fields -Werror=missing-methods -Wpartial-fields -Wredundant-constraints -Werror=empty-enumerations -Werror=missing-home-modules -threaded -rtsopts -with-rtsopts=-N -fplugin=Polysemy.Plugin -O2 -flate-specialise -fspecialise-aggressively
   build-depends:
-      base
+      aeson
+    , base
     , bytestring
     , containers
     , hspec

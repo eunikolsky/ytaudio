@@ -5,7 +5,6 @@
 Approximately ordered:
 
 * verbose mode: add logging;
-* show more than 15 past episodes, with a special runtime option;
 * put generator name in the feed;
 * fill in ID3 tags in MP3s;
 * provide link to an icon in the feed (`yt-dlp -j -I 0 https://www.youtube.com/channel/id --list-thumbnails`);

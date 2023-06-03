@@ -1,5 +1,5 @@
 name:                ytaudio
-version:             0.2.0
+version:             0.3.0
 github:              "githubuser/ytaudio"
 license:             BSD3
 author:              "Author name here"
@@ -80,6 +80,7 @@ library:
   - containers
   - http-conduit
   - http-media
+  - microlens
   - mtl
   - ndjson-conduit
   - polysemy
@@ -98,6 +99,7 @@ library:
   - warp
   - xml
   - xml-conduit
+  - xml-types
   ghc-options:
   # for polysemy:
   - -fplugin=Polysemy.Plugin
@@ -140,6 +142,7 @@ tests:
     - -flate-specialise
     - -fspecialise-aggressively
     dependencies:
+    - aeson
     - base
     - bytestring
     - containers

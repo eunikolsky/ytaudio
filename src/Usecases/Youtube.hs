@@ -1,15 +1,14 @@
 {-# LANGUAGE TemplateHaskell #-}
 
-module Usecases.Youtube (Youtube (..), ChannelId (..), getChannelFeed, getChannelStreams)
+module Usecases.Youtube (Youtube (..), getChannelFeed, getChannelStreams, streamChannelItems)
 where
 
+import Conduit
 import Data.Text (Text)
+import Domain.AudioFeed.Item qualified as Dom
 import Domain.YtDlpChannelStreams qualified as Dom
 import Polysemy
-
--- | Youtube channel ID.
-newtype ChannelId = ChannelId {unChannelId :: Text}
-  deriving newtype (Show, Eq)
+import Usecases.FeedConfig
 
 -- | Effect that provides access to youtube.
 data Youtube m a where
@@ -20,5 +19,7 @@ data Youtube m a where
   GetChannelFeed :: ChannelId -> Youtube m Text
   -- | Returns the streams status of a youtube channel.
   GetChannelStreams :: ChannelId -> Youtube m Dom.Streams
+  -- | Streams feed items from `yt-dlp`.
+  StreamChannelItems :: ChannelId -> Youtube m (ConduitT i Dom.AudioFeedItem IO ())
 
 makeSem ''Youtube
