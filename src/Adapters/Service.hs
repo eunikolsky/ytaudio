@@ -13,6 +13,7 @@ import Domain.YoutubeFeed qualified as Dom.YoutubeFeed
 import Domain.YoutubeVideoId qualified as Dom
 import Network.HTTP.Media ((//))
 import Polysemy
+import Polysemy.AtomicState
 import Polysemy.Error
 import Polysemy.Input
 import Polysemy.Resource
@@ -58,6 +59,11 @@ type API =
       :> Capture "channelId" ChannelId
       :> "config"
       :> Get '[JSON] UC.FeedConfig
+    :<|> "feed"
+      :> Capture "channelId" ChannelId
+      :> "config"
+      :> ReqBody '[JSON] UC.FeedConfig
+      :> Post '[JSON] UC.FeedConfig
     :<|> "yt"
       :> Capture "videoid" Dom.YoutubeVideoId
       :> StreamGet
@@ -83,6 +89,7 @@ server
         , UC.EncodeAudio
         , Error AudioServerError
         , UC.LiveStreamCheck
+        , AtomicState UC.FullChannels
         , Resource
         , Embed IO
         ]
@@ -90,7 +97,7 @@ server
      )
   => MVar ()
   -> ServerT API (Sem r)
-server concurrentLock = getAudioFeed :<|> getFeedConfig :<|> streamAudio concurrentLock
+server concurrentLock = getAudioFeed :<|> getFeedConfig :<|> postFeedConfig :<|> streamAudio concurrentLock
 
 getAudioFeed
   :: (Members [UC.Youtube, Error AudioServerError, Input Port] r, Monad m)
@@ -98,8 +105,12 @@ getAudioFeed
   -> Sem r (ConduitT () BB.Builder m ())
 getAudioFeed = mapError DownloadAudioFeedError . UC.downloadAudioFeed Dom.YoutubeFeed.parse . unChannelId
 
-getFeedConfig :: ChannelId -> Sem r UC.FeedConfig
+getFeedConfig :: (Member (AtomicState UC.FullChannels) r) => ChannelId -> Sem r UC.FeedConfig
 getFeedConfig = UC.getFeedConfig . unChannelId
+
+postFeedConfig
+  :: (Member (AtomicState UC.FullChannels) r) => ChannelId -> UC.FeedConfig -> Sem r UC.FeedConfig
+postFeedConfig cid = UC.changeFeedConfig (unChannelId cid)
 
 {- | Re-encode and stream audio to the client. Since the usecase is not
 concurrent-friendly [1] at the moment, the server has to allow only one mp3

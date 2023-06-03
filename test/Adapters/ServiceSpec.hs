@@ -13,6 +13,7 @@ import Domain.YtDlpChannelStreams qualified as Dom
 import External.Errors qualified as Ext
 import Paths_ytaudio (getDataFileName)
 import Polysemy
+import Polysemy.AtomicState
 import Polysemy.Error
 import Polysemy.Input
 import Polysemy.Resource
@@ -23,6 +24,7 @@ import Text.Show.Unicode
 import URI.ByteString (Port (..))
 import Usecases.EncodeAudio qualified as UC
 import Usecases.FeedConfig qualified as UC
+import Usecases.GetFeedConfig qualified as UC
 import Usecases.LiveStreamCheck qualified as UC
 import Usecases.RunYoutubePure
 import Usecases.Youtube qualified as UC
@@ -81,6 +83,7 @@ interpretServer
       , Error AudioServerError
       , Input Port
       , UC.LiveStreamCheck
+      , AtomicState UC.FullChannels
       , Resource
       , Embed IO
       ]
@@ -90,6 +93,7 @@ interpretServer streams youtubeFeed =
   liftToHandler
     . runM
     . runResource
+    . evalAtomicStateViaState mempty
     . runLiveStreamCheckPure
     . runInputConst (Port 8080)
     . runError @AudioServerError
