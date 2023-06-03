@@ -21,6 +21,7 @@ import Domain.AudioFeed.Item hiding (AudioFeedItem)
 import Domain.AudioFeed.Item qualified as Dom
 import Domain.YoutubeVideoId hiding (YoutubeVideoId)
 import Polysemy
+import Polysemy.AtomicState
 import Polysemy.Error
 import Polysemy.Input
 import Text.RSS.Conduit.Render
@@ -28,6 +29,8 @@ import Text.RSS.Types
 import Text.XML.Stream.Render
 import URI.ByteString
 import Usecases.FeedConfig
+import Usecases.GetFeedConfig
+import Usecases.RssConduitExt
 import Usecases.Youtube
 
 -- | Errors that can happen in the `downloadAudioFeed` usecase.
@@ -39,21 +42,33 @@ newtype DownloadAudioFeedError = YoutubeFeedParseError Text
 -- stream them as they become available.
 downloadAudioFeed
   -- TODO `Port` comes from `uri-bytestring` — is this fine?
-  :: (Members [Youtube, Error DownloadAudioFeedError, Input Port] r, Monad m)
+  :: (Members [Youtube, Error DownloadAudioFeedError, Input Port, AtomicState FullChannels] r)
   => (Text -> Maybe Dom.AudioFeed)
   -> ChannelId
-  -> Sem r (ConduitT () BB.Builder m ())
+  -> Sem r (ConduitT () BB.Builder IO ())
 -- TODO should `parseFeed` be a separate effect, even though it's a pure function?
 downloadAudioFeed parseFeed channelId = do
-  feed <- getChannelFeed channelId
-  case parseFeed feed of
-    Just audioFeed -> do
-      -- TODO download these in parallel
-      streams <- getChannelStreams channelId
-      let downloadableAudioFeed = Dom.dropUnavailable streams audioFeed
-      doc <- mkRssDoc downloadableAudioFeed
-      pure $ renderRssDocument doc .| renderBuilder def
-    Nothing -> throw $ YoutubeFeedParseError feed
+  fullFeed <- atomicGets (isFullChannel channelId)
+  if fullFeed then downloadFullAudioFeed else downloadLatestAudioFeed
+  where
+    downloadLatestAudioFeed = do
+      feed <- getChannelFeed channelId
+      case parseFeed feed of
+        Just audioFeed -> do
+          -- TODO download these in parallel
+          streams <- getChannelStreams channelId
+          let downloadableAudioFeed = Dom.dropUnavailable streams audioFeed
+          doc <- mkRssDoc downloadableAudioFeed
+          pure $ renderRssDocument doc .| renderBuilder def
+        Nothing -> throw $ YoutubeFeedParseError feed
+
+    downloadFullAudioFeed = do
+      itemsC <- streamChannelItems channelId
+      -- FIXME this information should really be parsed from the actual feed
+      emptyFeed <-
+        mkRssDoc $ Dom.AudioFeed{afTitle = "", afLink = "http://not.localhost/", afItems = mempty}
+      port <- input
+      pure $ itemsC .| mapC (mkRssItem port) .| renderRssDocumentStreaming emptyFeed .| renderBuilder def
 
 {-
  - Note: `mkRssDoc` is a pure function, so I think it has its place in the
@@ -70,7 +85,8 @@ downloadAudioFeed parseFeed channelId = do
 
 mkRssDoc :: (Member (Input Port) r) => Dom.AudioFeed -> Sem r RssDocument'
 mkRssDoc Dom.AudioFeed{afTitle, afLink, afItems} = do
-  channelItems <- traverse mkRssItem afItems
+  port <- input
+  let channelItems = mkRssItem port <$> afItems
   pure
     RssDocument
       { -- fields dependent on `Dom.AudioFeed`
@@ -100,26 +116,26 @@ mkRssDoc Dom.AudioFeed{afTitle, afLink, afItems} = do
       , channelExtensions = NoChannelExtensions
       }
 
-mkRssItem :: (Member (Input Port) r) => Dom.AudioFeedItem -> Sem r RssItem'
-mkRssItem Dom.AudioFeedItem{afiTitle, afiGuid, afiPubDate, afiDescription, afiLink} = do
-  port <- input
-  pure
-    RssItem
-      { itemTitle = afiTitle
-      , itemLink = Just . urlToURI $ afiLink
-      , itemDescription = afiDescription
-      , itemEnclosure = itemEnclosure port
-      , itemGuid = Just . GuidText . getYoutubeVideoId $ afiGuid
-      , itemPubDate = Just afiPubDate
-      , -- unused fields
-        itemAuthor = ""
-      , itemCategories = []
-      , itemComments = Nothing
-      , itemSource = Nothing
-      , itemExtensions = NoItemExtensions
-      }
+-- this function can't use `Sem r` (for `Input Port`) because it's also used in
+-- a returned conduit, which is in IO
+mkRssItem :: Port -> Dom.AudioFeedItem -> RssItem'
+mkRssItem port Dom.AudioFeedItem{afiTitle, afiGuid, afiPubDate, afiDescription, afiLink} =
+  RssItem
+    { itemTitle = afiTitle
+    , itemLink = Just . urlToURI $ afiLink
+    , itemDescription = afiDescription
+    , itemEnclosure
+    , itemGuid = Just . GuidText . getYoutubeVideoId $ afiGuid
+    , itemPubDate = Just afiPubDate
+    , -- unused fields
+      itemAuthor = ""
+    , itemCategories = []
+    , itemComments = Nothing
+    , itemSource = Nothing
+    , itemExtensions = NoItemExtensions
+    }
   where
-    itemEnclosure port =
+    itemEnclosure =
       [ RssEnclosure
           { enclosureUrl =
               urlToURI $

@@ -47,6 +47,7 @@ library
       Usecases.FeedConfig
       Usecases.GetFeedConfig
       Usecases.LiveStreamCheck
+      Usecases.RssConduitExt
       Usecases.StreamAudio
       Usecases.Youtube
   other-modules:
@@ -87,6 +88,7 @@ library
     , containers
     , http-conduit
     , http-media
+    , microlens
     , mtl
     , ndjson-conduit
     , polysemy
@@ -105,6 +107,7 @@ library
     , warp
     , xml
     , xml-conduit
+    , xml-types
   default-language: Haskell2010
 
 executable ytaudio

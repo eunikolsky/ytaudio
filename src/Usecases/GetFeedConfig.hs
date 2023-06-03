@@ -1,4 +1,4 @@
-module Usecases.GetFeedConfig (FullChannels, getFeedConfig, changeFeedConfig) where
+module Usecases.GetFeedConfig (FullChannels, getFeedConfig, changeFeedConfig, isFullChannel) where
 
 import Data.Set (Set)
 import Data.Set qualified as S
@@ -11,6 +11,9 @@ import Usecases.FeedConfig
 -}
 newtype FullChannels = FullChannels (Set ChannelId)
   deriving newtype (Semigroup, Monoid)
+
+isFullChannel :: ChannelId -> FullChannels -> Bool
+isFullChannel cid (FullChannels fullChannels) = S.member cid fullChannels
 
 getFeedConfig :: (Member (AtomicState FullChannels) r) => ChannelId -> Sem r FeedConfig
 getFeedConfig cid = do

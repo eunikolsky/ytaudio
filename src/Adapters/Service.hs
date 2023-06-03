@@ -100,9 +100,9 @@ server
 server concurrentLock = getAudioFeed :<|> getFeedConfig :<|> postFeedConfig :<|> streamAudio concurrentLock
 
 getAudioFeed
-  :: (Members [UC.Youtube, Error AudioServerError, Input Port] r, Monad m)
+  :: (Members [UC.Youtube, Error AudioServerError, Input Port, AtomicState UC.FullChannels] r)
   => ChannelId
-  -> Sem r (ConduitT () BB.Builder m ())
+  -> Sem r (ConduitT () BB.Builder IO ())
 getAudioFeed = mapError DownloadAudioFeedError . UC.downloadAudioFeed Dom.YoutubeFeed.parse . unChannelId
 
 getFeedConfig :: (Member (AtomicState UC.FullChannels) r) => ChannelId -> Sem r UC.FeedConfig

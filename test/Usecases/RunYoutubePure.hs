@@ -13,7 +13,10 @@ runYoutubePure :: (UC.ChannelId, Text, Dom.Streams) -> InterpreterFor UC.Youtube
 runYoutubePure (channelId, retValue, streams) = interpret $ \case
   UC.GetChannelFeed cid
     | cid == channelId -> pure retValue
-    | otherwise -> error "GetChannelFeed:  channel ID"
+    | otherwise -> error "GetChannelFeed: unexpected channel ID"
   UC.GetChannelStreams cid
     | cid == channelId -> pure streams
     | otherwise -> error "GetChannelStreams: unexpected channel ID"
+  UC.StreamChannelItems cid
+    | cid == channelId -> pure $ pure ()
+    | otherwise -> error "StreamChannelItems: unexpected channel ID"
