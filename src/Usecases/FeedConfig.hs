@@ -21,10 +21,9 @@ instance ToJSON ChannelId where
 instance FromJSON ChannelId where
   parseJSON = fmap ChannelId . parseJSON
 
-data FeedConfig = FeedConfig
-  { channelId :: !ChannelId -- TODO add this on the Adapters layer?
-  , allEpisodes :: !Bool
-  -- ^ whether to download all episodes (using `yt-dlp`)
+newtype FeedConfig = FeedConfig
+  { allEpisodes :: Bool
+  -- ^ whether to include all episodes in the feed (using `yt-dlp`, this is much slower!)
   }
   deriving stock (Generic)
 

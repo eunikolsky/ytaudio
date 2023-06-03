@@ -15,7 +15,7 @@ newtype FullChannels = FullChannels (Set ChannelId)
 getFeedConfig :: (Member (AtomicState FullChannels) r) => ChannelId -> Sem r FeedConfig
 getFeedConfig cid = do
   allEpisodes <- atomicGets $ \(FullChannels fullChannels) -> S.member cid fullChannels
-  pure FeedConfig{channelId = cid, allEpisodes}
+  pure FeedConfig{allEpisodes}
 
 changeFeedConfig
   :: (Member (AtomicState FullChannels) r) => ChannelId -> FeedConfig -> Sem r FeedConfig
