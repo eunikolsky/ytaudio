@@ -77,7 +77,7 @@ getChannelItemsProc (UC.ChannelId cid) =
 {- | The number of streams to request from `yt-dlp`. This is a tradeoff between
 the number of streams to check and the time it takes to check them. Youtube's
 feed contains up to 15 items, but (I think) it's highly unlikely that all of
-them will be upcoming streams, so 3 newest streams should be enough.
+them will be upcoming streams, so 5 newest streams should be enough.
 -}
 maxRequestedStreams :: Int
-maxRequestedStreams = 3
+maxRequestedStreams = 5
