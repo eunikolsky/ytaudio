@@ -28,6 +28,7 @@ liveStatusFromString _ = Nothing
 -- | Returns whether a video can be downloaded based on its live status.
 canBeDownloaded :: LiveStatus -> Bool
 canBeDownloaded IsUpcoming = False
+canBeDownloaded IsLive = False
 -- this case is not clear, I haven't checked whether `yt-dlp` can download it
 canBeDownloaded PostLive = True
 canBeDownloaded _ = True
