@@ -29,6 +29,6 @@ liveStatusFromString _ = Nothing
 canBeDownloaded :: LiveStatus -> Bool
 canBeDownloaded IsUpcoming = False
 canBeDownloaded IsLive = False
--- this case is not clear, I haven't checked whether `yt-dlp` can download it
-canBeDownloaded PostLive = True
+-- post-live is too soon to download: `ERROR: [youtube] xyz: This live event has ended.`
+canBeDownloaded PostLive = False
 canBeDownloaded _ = True
