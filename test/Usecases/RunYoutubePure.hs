@@ -17,6 +17,7 @@ runYoutubePure (channelId, retValue, streams) = interpret $ \case
   UC.GetChannelStreams cid
     | cid == channelId -> pure streams
     | otherwise -> error "GetChannelStreams: unexpected channel ID"
+  UC.GetLocalChannelItems _ -> pure Nothing
   UC.StreamChannelItems cid
     | cid == channelId -> pure $ pure ()
     | otherwise -> error "StreamChannelItems: unexpected channel ID"

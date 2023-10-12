@@ -1,6 +1,6 @@
 {-# LANGUAGE RecordWildCards #-}
 
-module Domain.AudioFeed (AudioFeed (..), dropUnavailable)
+module Domain.AudioFeed (AudioFeed (..), appendItems, dropUnavailable)
 where
 
 import Data.Map ((!?))
@@ -52,3 +52,7 @@ dropUnavailable (Streams streams) feed =
     isAvailable :: AudioFeedItem -> Bool
     isAvailable AudioFeedItem{afiGuid} =
       maybe True canBeDownloaded $ streams !? afiGuid
+
+-- | Appends items to the given feed.
+appendItems :: AudioFeed -> [AudioFeedItem] -> AudioFeed
+appendItems feed@(AudioFeed{afItems}) items = feed{afItems = afItems <> items}

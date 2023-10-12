@@ -54,7 +54,9 @@ downloadAudioFeed parseFeed channelId = do
     downloadLatestAudioFeed = do
       feed <- getChannelFeed channelId
       case parseFeed feed of
-        Just audioFeed -> do
+        Just originalAudioFeed -> do
+          maybeLocalItems <- getLocalChannelItems channelId
+          let audioFeed = maybe originalAudioFeed (appendItems originalAudioFeed) maybeLocalItems
           -- TODO download these in parallel
           streams <- getChannelStreams channelId
           let downloadableAudioFeed = Dom.dropUnavailable streams audioFeed

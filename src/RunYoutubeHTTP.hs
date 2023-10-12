@@ -13,6 +13,8 @@ import Domain.YtDlpChannelItems qualified as Dom.YtDlpChannelItem
 import Domain.YtDlpChannelStreams qualified as Dom.YtDlpChannelStreams
 import Network.HTTP.Simple
 import Polysemy
+import System.Directory
+import System.FilePath
 import System.Process
 import Usecases.FeedConfig qualified as UC
 import Usecases.Youtube qualified as UC
@@ -40,6 +42,16 @@ runYoutubeHTTP = interpret $ \case
           stdin
     let bytestring = TEL.encodeUtf8 . TL.pack $ statusesString
     pure $ Dom.YtDlpChannelStreams.parse bytestring
+  UC.GetLocalChannelItems (UC.ChannelId cid) -> do
+    let filename = T.unpack cid <.> "jsonl"
+    exists <- embed . doesFileExist $ filename
+    if exists
+      then
+        fmap Just . embed . runConduitRes $
+          sourceFile filename
+            .| mapOutputMaybe (A.parseMaybe Dom.YtDlpChannelItem.parse) ND.valueParser
+            .| sinkList
+      else pure Nothing
   UC.StreamChannelItems cid -> do
     (C.ClosedStream, channelItemsBytesC, C.Inherited, _) <- C.streamingProcess $ getChannelItemsProc cid
     pure $ channelItemsBytesC .| mapOutputMaybe (A.parseMaybe Dom.YtDlpChannelItem.parse) ND.valueParser
