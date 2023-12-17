@@ -193,7 +193,9 @@ tryTakeLock lock lockedAction notLockedAction = bracketOnError acquire releaseIf
     action Nothing = notLockedAction
 
 addFilenameHeader :: (AddHeader h Text orig new) => Dom.YoutubeVideoId -> orig -> new
-addFilenameHeader videoId = addHeader ("attachment; filename=\"" <> Dom.getYoutubeVideoId videoId <> ".mp3\"")
+addFilenameHeader videoId =
+  addHeader $
+    "attachment; filename=\"" <> Dom.getYoutubeVideoId videoId <> ".mp3\""
 
 err444NoResponse :: ServerError
 err444NoResponse =
