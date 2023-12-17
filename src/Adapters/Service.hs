@@ -238,8 +238,7 @@ addFilenameHeader source =
         mconcat
           [ T.pack . iso8601Show $ utctDay pubDate
           , "_"
-          , -- FIXME escape quotes
-            title
+          , T.replace "\"" "\\\"" title
           , "_"
           ]
       FilenameVideoId _ -> ""
