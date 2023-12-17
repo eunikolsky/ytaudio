@@ -8,7 +8,7 @@ import Control.Concurrent.MVar
 import Data.Binary.Builder qualified as BB
 import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
-import Data.List (find)
+import Data.Map qualified as M
 import Data.Maybe
 import Data.Text (Text)
 import Data.Text qualified as T
@@ -167,7 +167,7 @@ streamAudio
 -- within the first part.
 streamAudio concurrentLock videoId = do
   feedItems <- atomicGet
-  let maybeFeedItem = find ((== videoId) . Dom.afiGuid) feedItems
+  let maybeFeedItem = feedItems M.!? videoId
       -- FIXME use another error reporting?
       feedItem = fromMaybe (error $ "Unknown video id " <> T.unpack (Dom.getYoutubeVideoId videoId)) maybeFeedItem
       response = addFilenameHeader feedItem <$> conduit

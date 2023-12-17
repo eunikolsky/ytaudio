@@ -11,6 +11,8 @@ where
 import Conduit
 import Data.Binary.Builder qualified as BB
 import Data.Either
+import Data.Map (Map)
+import Data.Map qualified as M
 import Data.Set qualified as S
 import Data.Text (Text)
 import Data.Text qualified as T
@@ -21,6 +23,7 @@ import Domain.AudioFeed qualified as Dom
 import Domain.AudioFeed.Item hiding (AudioFeedItem)
 import Domain.AudioFeed.Item qualified as Dom
 import Domain.YoutubeVideoId hiding (YoutubeVideoId)
+import Domain.YoutubeVideoId qualified as Dom
 import Polysemy
 import Polysemy.AtomicState
 import Polysemy.Error
@@ -42,9 +45,8 @@ newtype DownloadAudioFeedError = YoutubeFeedParseError Text
 requested; feed items from all feeds go into the same list because the
 youtube video id is unique in the system. An item from this list is used to
 get video's information by id (date and title) for the audio filename.
-FIXME use Map to avoid duplicates
 -}
-type AudioFeedItems = [Dom.AudioFeedItem]
+type AudioFeedItems = Map Dom.YoutubeVideoId Dom.AudioFeedItem
 
 -- Audio feed on the `Usecases` layer is a conduit of byte strings (builders)
 -- because all the feed's items may not be available immediately and we need to
@@ -77,11 +79,16 @@ downloadAudioFeed parseFeed channelId = do
           -- TODO download these in parallel
           streams <- getChannelStreams channelId
           let downloadableAudioFeed = Dom.dropUnavailable streams audioFeed
-          atomicModify' @AudioFeedItems (<> afItems downloadableAudioFeed)
+          atomicModify' @AudioFeedItems (appendFeedItems $ afItems downloadableAudioFeed)
 
           doc <- mkRssDoc downloadableAudioFeed
           pure $ renderRssDocument doc .| renderBuilder def
         Nothing -> throw $ YoutubeFeedParseError feed
+
+    -- M.union prefers the first argument when duplicate keys are encountered
+    appendFeedItems newFeedItems = M.union newFeedMap
+      where
+        newFeedMap = M.fromList $ (\item -> (Dom.afiGuid item, item)) <$> newFeedItems
 
     downloadFullAudioFeed = do
       itemsC <- streamChannelItems channelId
