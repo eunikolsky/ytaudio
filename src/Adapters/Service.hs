@@ -9,7 +9,6 @@ import Data.Binary.Builder qualified as BB
 import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
 import Data.Map qualified as M
-import Data.Maybe
 import Data.Text (Text)
 import Data.Text qualified as T
 import Data.Time.Clock
@@ -168,8 +167,7 @@ streamAudio
 streamAudio concurrentLock videoId = do
   feedItems <- atomicGet
   let maybeFeedItem = feedItems M.!? videoId
-      -- FIXME use another error reporting?
-      feedItem = fromMaybe (error $ "Unknown video id " <> T.unpack (Dom.getYoutubeVideoId videoId)) maybeFeedItem
+      feedItem = maybe (FilenameVideoId videoId) FilenameFeedItem maybeFeedItem
       response = addFilenameHeader feedItem <$> conduit
       conduit = mapError StreamAudioError (releaseLockAfterConduit concurrentLock <$> UC.streamAudio videoId)
   tryTakeLock
@@ -219,21 +217,32 @@ tryTakeLock lock lockedAction notLockedAction = bracketOnError acquire releaseIf
     action (Just _) = lockedAction
     action Nothing = notLockedAction
 
-addFilenameHeader :: (AddHeader h Text orig new) => Dom.AudioFeedItem -> orig -> new
-addFilenameHeader Dom.AudioFeedItem{Dom.afiGuid = videoId, Dom.afiTitle = title, Dom.afiPubDate = pubDate} =
+data FilenameSource = FilenameFeedItem Dom.AudioFeedItem | FilenameVideoId Dom.YoutubeVideoId
+
+addFilenameHeader :: (AddHeader h Text orig new) => FilenameSource -> orig -> new
+addFilenameHeader source =
   addHeader $
     mconcat
       [ "attachment; filename=\""
-      , T.pack date
-      , "_"
-      , -- FIXME escape quotes
-        title
-      , "_"
+      , extraInfoOrEmpty
       , Dom.getYoutubeVideoId videoId
       , ".mp3\""
       ]
   where
-    date = iso8601Show $ utctDay pubDate
+    videoId = case source of
+      FilenameFeedItem (Dom.AudioFeedItem{Dom.afiGuid = guid}) -> guid
+      FilenameVideoId vid -> vid
+
+    extraInfoOrEmpty = case source of
+      FilenameFeedItem (Dom.AudioFeedItem{Dom.afiTitle = title, Dom.afiPubDate = pubDate}) ->
+        mconcat
+          [ T.pack . iso8601Show $ utctDay pubDate
+          , "_"
+          , -- FIXME escape quotes
+            title
+          , "_"
+          ]
+      FilenameVideoId _ -> ""
 
 err444NoResponse :: ServerError
 err444NoResponse =
