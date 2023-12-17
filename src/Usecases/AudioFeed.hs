@@ -1,5 +1,6 @@
 module Usecases.AudioFeed
   ( downloadAudioFeed
+  , AudioFeedItems
   , DownloadAudioFeedError (..)
   )
 where
@@ -37,12 +38,28 @@ import Usecases.Youtube
 newtype DownloadAudioFeedError = YoutubeFeedParseError Text
   deriving stock (Show, Eq)
 
+{- | List of feed items known so far. It's appended to when audio feeds are
+requested; feed items from all feeds go into the same list because the
+youtube video id is unique in the system. An item from this list is used to
+get video's information by id (date and title) for the audio filename.
+FIXME use Map to avoid duplicates
+-}
+type AudioFeedItems = [Dom.AudioFeedItem]
+
 -- Audio feed on the `Usecases` layer is a conduit of byte strings (builders)
 -- because all the feed's items may not be available immediately and we need to
 -- stream them as they become available.
 downloadAudioFeed
   -- TODO `Port` comes from `uri-bytestring` — is this fine?
-  :: (Members [Youtube, Error DownloadAudioFeedError, Input Port, AtomicState FullChannels] r)
+  :: ( Members
+        [ Youtube
+        , Error DownloadAudioFeedError
+        , Input Port
+        , AtomicState FullChannels
+        , AtomicState AudioFeedItems
+        ]
+        r
+     )
   => (Text -> Maybe Dom.AudioFeed)
   -> ChannelId
   -> Sem r (ConduitT () BB.Builder IO ())
@@ -60,6 +77,8 @@ downloadAudioFeed parseFeed channelId = do
           -- TODO download these in parallel
           streams <- getChannelStreams channelId
           let downloadableAudioFeed = Dom.dropUnavailable streams audioFeed
+          atomicModify' @AudioFeedItems (<> afItems downloadableAudioFeed)
+
           doc <- mkRssDoc downloadableAudioFeed
           pure $ renderRssDocument doc .| renderBuilder def
         Nothing -> throw $ YoutubeFeedParseError feed

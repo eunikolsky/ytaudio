@@ -8,7 +8,13 @@ import Control.Concurrent.MVar
 import Data.Binary.Builder qualified as BB
 import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
+import Data.List (find)
+import Data.Maybe
 import Data.Text (Text)
+import Data.Text qualified as T
+import Data.Time.Clock
+import Data.Time.Format.ISO8601
+import Domain.AudioFeed.Item qualified as Dom
 import Domain.YoutubeFeed qualified as Dom.YoutubeFeed
 import Domain.YoutubeVideoId qualified as Dom
 import Network.HTTP.Media ((//))
@@ -90,6 +96,7 @@ server
         , Error AudioServerError
         , UC.LiveStreamCheck
         , AtomicState UC.FullChannels
+        , AtomicState UC.AudioFeedItems
         , Resource
         , Embed IO
         ]
@@ -100,7 +107,15 @@ server
 server concurrentLock = getAudioFeed :<|> getFeedConfig :<|> postFeedConfig :<|> streamAudio concurrentLock
 
 getAudioFeed
-  :: (Members [UC.Youtube, Error AudioServerError, Input Port, AtomicState UC.FullChannels] r)
+  :: ( Members
+        [ UC.Youtube
+        , Error AudioServerError
+        , Input Port
+        , AtomicState UC.FullChannels
+        , AtomicState UC.AudioFeedItems
+        ]
+        r
+     )
   => ChannelId
   -> Sem r (ConduitT () BB.Builder IO ())
 getAudioFeed = mapError DownloadAudioFeedError . UC.downloadAudioFeed Dom.YoutubeFeed.parse . unChannelId
@@ -115,7 +130,6 @@ postFeedConfig cid = UC.changeFeedConfig (unChannelId cid)
 {- | Re-encode and stream audio to the client. Since the usecase is not
 concurrent-friendly [1] at the moment, the server has to allow only one mp3
 download at a time, other requests will get 429 Too many requests.
-
 [1] `yt-dlp` creates a temporary file for each fragment of the audio stream
 (a fragment is 10 MiB by default), named `--FragN` in our case (the first `-`
 means `stdout`). So concurrent downloads would have conflicts for the same
@@ -132,7 +146,16 @@ or may not be dash-specific.
 -}
 streamAudio
   -- TODO should this require a more specific "Locking" effect rather than "Resource"?
-  :: (Members [UC.EncodeAudio, Error AudioServerError, UC.LiveStreamCheck, Resource, Embed IO] r)
+  :: ( Members
+        [ UC.EncodeAudio
+        , Error AudioServerError
+        , UC.LiveStreamCheck
+        , AtomicState UC.AudioFeedItems
+        , Resource
+        , Embed IO
+        ]
+        r
+     )
   => MVar ()
   -> Dom.YoutubeVideoId
   -> Sem r (Headers '[Header "Content-Disposition" Text] (ConduitT () ByteString (ResourceT IO) ()))
@@ -142,13 +165,17 @@ streamAudio
 -- `UC.streamAudio` in this function) and running the conduit (which is done
 -- after this function returns). This means that a `bracket` here works only
 -- within the first part.
-streamAudio concurrentLock videoId =
-  let response = addFilenameHeader videoId <$> conduit
+streamAudio concurrentLock videoId = do
+  feedItems <- atomicGet
+  let maybeFeedItem = find ((== videoId) . Dom.afiGuid) feedItems
+      -- FIXME use another error reporting?
+      feedItem = fromMaybe (error $ "Unknown video id " <> T.unpack (Dom.getYoutubeVideoId videoId)) maybeFeedItem
+      response = addFilenameHeader feedItem <$> conduit
       conduit = mapError StreamAudioError (releaseLockAfterConduit concurrentLock <$> UC.streamAudio videoId)
-  in tryTakeLock
-      concurrentLock
-      response
-      (throw ConcurrentStreamingError)
+  tryTakeLock
+    concurrentLock
+    response
+    (throw ConcurrentStreamingError)
 
 {- | Makes sure the lock is released after the conduit finishes.
 
@@ -192,10 +219,21 @@ tryTakeLock lock lockedAction notLockedAction = bracketOnError acquire releaseIf
     action (Just _) = lockedAction
     action Nothing = notLockedAction
 
-addFilenameHeader :: (AddHeader h Text orig new) => Dom.YoutubeVideoId -> orig -> new
-addFilenameHeader videoId =
+addFilenameHeader :: (AddHeader h Text orig new) => Dom.AudioFeedItem -> orig -> new
+addFilenameHeader Dom.AudioFeedItem{Dom.afiGuid = videoId, Dom.afiTitle = title, Dom.afiPubDate = pubDate} =
   addHeader $
-    "attachment; filename=\"" <> Dom.getYoutubeVideoId videoId <> ".mp3\""
+    mconcat
+      [ "attachment; filename=\""
+      , T.pack date
+      , "_"
+      , -- FIXME escape quotes
+        title
+      , "_"
+      , Dom.getYoutubeVideoId videoId
+      , ".mp3\""
+      ]
+  where
+    date = iso8601Show $ utctDay pubDate
 
 err444NoResponse :: ServerError
 err444NoResponse =

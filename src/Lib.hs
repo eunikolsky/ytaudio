@@ -25,6 +25,7 @@ import RunYoutubeHTTP
 import Servant.Server
 import SkipLiveStreamCheck
 import URI.ByteString (Port (..))
+import Usecases.AudioFeed qualified as UC
 import Usecases.EncodeAudio qualified as UC
 import Usecases.GetFeedConfig qualified as UC
 import Usecases.LiveStreamCheck qualified as UC
@@ -39,17 +40,24 @@ startApp port = withStdoutLogger $ \aplogger -> do
   let settings = Warp.setPort port $ Warp.setLogger aplogger Warp.defaultSettings
   concurrentLock <- newMVar ()
   fullChannelsRef <- newIORef mempty
-  Warp.runSettings settings $ app concurrentLock port fullChannelsRef
+  feedItemsHistoryRef <- newIORef mempty
+  Warp.runSettings settings $ app concurrentLock port fullChannelsRef feedItemsHistoryRef
 
-app :: MVar () -> Warp.Port -> IORef UC.FullChannels -> Application
-app concurrentLock port fullChannelsRef = serve Ad.api $ liftServer concurrentLock port fullChannelsRef
+app :: MVar () -> Warp.Port -> IORef UC.FullChannels -> IORef UC.AudioFeedItems -> Application
+app concurrentLock port fullChannelsRef feedItemsHistoryRef = serve Ad.api $ liftServer concurrentLock port fullChannelsRef feedItemsHistoryRef
 
-liftServer :: MVar () -> Warp.Port -> IORef UC.FullChannels -> Server Ad.API
-liftServer concurrentLock port fullChannelsRef = hoistServer Ad.api (interpretServer port fullChannelsRef) (Ad.server concurrentLock)
+liftServer
+  :: MVar () -> Warp.Port -> IORef UC.FullChannels -> IORef UC.AudioFeedItems -> Server Ad.API
+liftServer concurrentLock port fullChannelsRef feedItemsHistoryRef =
+  hoistServer
+    Ad.api
+    (interpretServer port fullChannelsRef feedItemsHistoryRef)
+    (Ad.server concurrentLock)
 
 interpretServer
   :: Warp.Port
   -> IORef UC.FullChannels
+  -> IORef UC.AudioFeedItems
   -> Sem
       [ UC.Youtube
       , UC.EncodeAudio
@@ -57,15 +65,17 @@ interpretServer
       , Input Port
       , UC.LiveStreamCheck
       , AtomicState UC.FullChannels
+      , AtomicState UC.AudioFeedItems
       , Resource
       , Embed IO
       ]
       a
   -> Handler a
-interpretServer port fullChannelsRef =
+interpretServer port fullChannelsRef feedItemsHistoryRef =
   liftToHandler
     . runM
     . runResource
+    . runAtomicStateIORef feedItemsHistoryRef
     -- note: `atomicStateToIO` does not work here because apparently it loses
     -- state after each request
     . runAtomicStateIORef fullChannelsRef
