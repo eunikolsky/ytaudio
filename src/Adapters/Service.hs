@@ -5,12 +5,14 @@ where
 
 import Conduit
 import Control.Concurrent.MVar
+import Data.Binary.Builder (toLazyByteString)
 import Data.Binary.Builder qualified as BB
 import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
 import Data.Map qualified as M
 import Data.Text (Text)
 import Data.Text qualified as T
+import Data.Text.Encoding qualified as TE
 import Data.Time.Clock
 import Data.Time.Format.ISO8601
 import Domain.AudioFeed.Item qualified as Dom
@@ -24,7 +26,7 @@ import Polysemy.Input
 import Polysemy.Resource
 import Servant
 import Servant.Conduit ()
-import URI.ByteString (Port)
+import URI.ByteString (Port, urlEncode)
 import Usecases.AudioFeed qualified as UC
 import Usecases.EncodeAudio qualified as UC
 import Usecases.FeedConfig qualified as UC
@@ -224,16 +226,22 @@ addFilenameHeader
   ( FilenameFeedItem
       (Dom.AudioFeedItem{Dom.afiGuid = videoId, Dom.afiTitle = title, Dom.afiPubDate = pubDate})
     ) =
-    addHeader $
-      mconcat
-        [ "attachment; filename=\""
-        , T.pack . iso8601Show $ utctDay pubDate
-        , "_"
-        , T.replace "\"" "\\\"" title
-        , "_"
-        , Dom.getYoutubeVideoId videoId
-        , ".mp3\""
-        ]
+    -- note: this uses an "extended notation" from RFC 8187 [0] in order to
+    -- encode non-US-ASCII characters; gPodder does create the file with the
+    -- broken encoding in the name, but renames it to the correct one when the
+    -- download finishes
+    -- [0]: https://www.rfc-editor.org/rfc/rfc8187.html#section-3.2.3
+    addHeader $ "attachment; filename*=UTF-8''" <> encodedFilename <> ".mp3"
+    where
+      encodedFilename =
+        TE.decodeUtf8 . BS.toStrict . toLazyByteString . urlEncode mempty . TE.encodeUtf8 $
+          mconcat
+            [ T.pack . iso8601Show $ utctDay pubDate
+            , "_"
+            , title
+            , "_"
+            , Dom.getYoutubeVideoId videoId
+            ]
 addFilenameHeader (FilenameVideoId videoId) =
   addHeader $
     mconcat
