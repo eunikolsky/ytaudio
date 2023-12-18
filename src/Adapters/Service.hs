@@ -10,6 +10,7 @@ import Data.Binary.Builder qualified as BB
 import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
 import Data.Map qualified as M
+import Data.Set qualified as S
 import Data.Text (Text)
 import Data.Text qualified as T
 import Data.Text.Encoding qualified as TE
@@ -243,8 +244,16 @@ addFilenameHeader
               -- title may be too long for a filename
               Dom.getYoutubeVideoId videoId
             , "_"
-            , title
+            , sanitizedTitle
             ]
+      -- this replaces (consequent) unsafe URL characters with an underscore,
+      -- which is needed to have full filenames because gPodder extracts the
+      -- filename from the already decoded Content-Disposition filename by
+      -- parsing it as a URL and using the URL path, so a `#` causes
+      -- incomplete filenames since it starts a URL fragment
+      sanitizedTitle = T.intercalate "_" $ T.split (`S.member` unsafeURLChars) title
+      -- https://stackoverflow.com/questions/695438/what-are-the-safe-characters-for-making-urls
+      unsafeURLChars = S.fromList "+&=?/#%<>[]{}|\\^"
 addFilenameHeader (FilenameVideoId videoId) =
   addHeader $
     mconcat
