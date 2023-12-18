@@ -149,11 +149,11 @@ mkRssDoc Dom.AudioFeed{afTitle, afLink, afItems} = do
 mkRssItem :: Port -> Dom.AudioFeedItem -> RssItem'
 mkRssItem port Dom.AudioFeedItem{afiTitle, afiGuid, afiPubDate, afiDescription, afiLink} =
   RssItem
-    { itemTitle = afiTitle
+    { itemTitle = afiTitle <> " [" <> videoId <> "]"
     , itemLink = Just . urlToURI $ afiLink
     , itemDescription = afiDescription
     , itemEnclosure
-    , itemGuid = Just . GuidText . getYoutubeVideoId $ afiGuid
+    , itemGuid = Just . GuidText $ videoId
     , itemPubDate = Just afiPubDate
     , -- unused fields
       itemAuthor = ""
@@ -163,11 +163,12 @@ mkRssItem port Dom.AudioFeedItem{afiTitle, afiGuid, afiPubDate, afiDescription, 
     , itemExtensions = NoItemExtensions
     }
   where
+    videoId = getYoutubeVideoId afiGuid
     itemEnclosure =
       [ RssEnclosure
           { enclosureUrl =
               urlToURI $
-                "http://localhost:" <> (T.pack . show . portNumber $ port) <> "/yt/" <> getYoutubeVideoId afiGuid
+                "http://localhost:" <> (T.pack . show . portNumber $ port) <> "/yt/" <> videoId
           , enclosureLength = unknownLength
           , enclosureType = "audio/mpeg"
           }
