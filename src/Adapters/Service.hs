@@ -5,10 +5,18 @@ where
 
 import Conduit
 import Control.Concurrent.MVar
+import Data.Binary.Builder (toLazyByteString)
 import Data.Binary.Builder qualified as BB
 import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
+import Data.Map qualified as M
+import Data.Set qualified as S
 import Data.Text (Text)
+import Data.Text qualified as T
+import Data.Text.Encoding qualified as TE
+import Data.Time.Clock
+import Data.Time.Format.ISO8601
+import Domain.AudioFeed.Item qualified as Dom
 import Domain.YoutubeFeed qualified as Dom.YoutubeFeed
 import Domain.YoutubeVideoId qualified as Dom
 import Network.HTTP.Media ((//))
@@ -19,7 +27,7 @@ import Polysemy.Input
 import Polysemy.Resource
 import Servant
 import Servant.Conduit ()
-import URI.ByteString (Port)
+import URI.ByteString (Port, urlEncode)
 import Usecases.AudioFeed qualified as UC
 import Usecases.EncodeAudio qualified as UC
 import Usecases.FeedConfig qualified as UC
@@ -90,6 +98,7 @@ server
         , Error AudioServerError
         , UC.LiveStreamCheck
         , AtomicState UC.FullChannels
+        , AtomicState UC.AudioFeedItems
         , Resource
         , Embed IO
         ]
@@ -100,7 +109,15 @@ server
 server concurrentLock = getAudioFeed :<|> getFeedConfig :<|> postFeedConfig :<|> streamAudio concurrentLock
 
 getAudioFeed
-  :: (Members [UC.Youtube, Error AudioServerError, Input Port, AtomicState UC.FullChannels] r)
+  :: ( Members
+        [ UC.Youtube
+        , Error AudioServerError
+        , Input Port
+        , AtomicState UC.FullChannels
+        , AtomicState UC.AudioFeedItems
+        ]
+        r
+     )
   => ChannelId
   -> Sem r (ConduitT () BB.Builder IO ())
 getAudioFeed = mapError DownloadAudioFeedError . UC.downloadAudioFeed Dom.YoutubeFeed.parse . unChannelId
@@ -115,7 +132,6 @@ postFeedConfig cid = UC.changeFeedConfig (unChannelId cid)
 {- | Re-encode and stream audio to the client. Since the usecase is not
 concurrent-friendly [1] at the moment, the server has to allow only one mp3
 download at a time, other requests will get 429 Too many requests.
-
 [1] `yt-dlp` creates a temporary file for each fragment of the audio stream
 (a fragment is 10 MiB by default), named `--FragN` in our case (the first `-`
 means `stdout`). So concurrent downloads would have conflicts for the same
@@ -132,7 +148,16 @@ or may not be dash-specific.
 -}
 streamAudio
   -- TODO should this require a more specific "Locking" effect rather than "Resource"?
-  :: (Members [UC.EncodeAudio, Error AudioServerError, UC.LiveStreamCheck, Resource, Embed IO] r)
+  :: ( Members
+        [ UC.EncodeAudio
+        , Error AudioServerError
+        , UC.LiveStreamCheck
+        , AtomicState UC.AudioFeedItems
+        , Resource
+        , Embed IO
+        ]
+        r
+     )
   => MVar ()
   -> Dom.YoutubeVideoId
   -> Sem r (Headers '[Header "Content-Disposition" Text] (ConduitT () ByteString (ResourceT IO) ()))
@@ -142,13 +167,16 @@ streamAudio
 -- `UC.streamAudio` in this function) and running the conduit (which is done
 -- after this function returns). This means that a `bracket` here works only
 -- within the first part.
-streamAudio concurrentLock videoId =
-  let response = addFilenameHeader videoId <$> conduit
+streamAudio concurrentLock videoId = do
+  feedItems <- atomicGet
+  let maybeFeedItem = feedItems M.!? videoId
+      feedItem = maybe (FilenameVideoId videoId) FilenameFeedItem maybeFeedItem
+      response = addFilenameHeader feedItem <$> conduit
       conduit = mapError StreamAudioError (releaseLockAfterConduit concurrentLock <$> UC.streamAudio videoId)
-  in tryTakeLock
-      concurrentLock
-      response
-      (throw ConcurrentStreamingError)
+  tryTakeLock
+    concurrentLock
+    response
+    (throw ConcurrentStreamingError)
 
 {- | Makes sure the lock is released after the conduit finishes.
 
@@ -192,8 +220,47 @@ tryTakeLock lock lockedAction notLockedAction = bracketOnError acquire releaseIf
     action (Just _) = lockedAction
     action Nothing = notLockedAction
 
-addFilenameHeader :: (AddHeader h Text orig new) => Dom.YoutubeVideoId -> orig -> new
-addFilenameHeader videoId = addHeader ("attachment; filename=\"" <> Dom.getYoutubeVideoId videoId <> ".mp3\"")
+data FilenameSource = FilenameFeedItem Dom.AudioFeedItem | FilenameVideoId Dom.YoutubeVideoId
+
+addFilenameHeader :: (AddHeader h Text orig new) => FilenameSource -> orig -> new
+addFilenameHeader
+  ( FilenameFeedItem
+      (Dom.AudioFeedItem{Dom.afiGuid = videoId, Dom.afiTitle = title, Dom.afiPubDate = pubDate})
+    ) =
+    -- note: this uses an "extended notation" from RFC 8187 [0] in order to
+    -- encode non-US-ASCII characters; gPodder does create the file with the
+    -- broken encoding in the name, but renames it to the correct one when the
+    -- download finishes
+    -- [0]: https://www.rfc-editor.org/rfc/rfc8187.html#section-3.2.3
+    addHeader $ "attachment; filename*=UTF-8''" <> encodedFilename <> ".mp3"
+    where
+      encodedFilename =
+        TE.decodeUtf8 . BS.toStrict . toLazyByteString . urlEncode mempty . TE.encodeUtf8 $
+          mconcat
+            -- date is first because it provides the natural lexicographic order
+            [ T.pack . iso8601Show $ utctDay pubDate
+            , "_"
+            , -- videoId is second because it may be useful for debugging and the
+              -- title may be too long for a filename
+              Dom.getYoutubeVideoId videoId
+            , "_"
+            , sanitizedTitle
+            ]
+      -- this replaces (consequent) unsafe URL characters with an underscore,
+      -- which is needed to have full filenames because gPodder extracts the
+      -- filename from the already decoded Content-Disposition filename by
+      -- parsing it as a URL and using the URL path, so a `#` causes
+      -- incomplete filenames since it starts a URL fragment
+      sanitizedTitle = T.intercalate "_" $ T.split (`S.member` unsafeURLChars) title
+      -- https://stackoverflow.com/questions/695438/what-are-the-safe-characters-for-making-urls
+      unsafeURLChars = S.fromList "+&=?/#%<>[]{}|\\^"
+addFilenameHeader (FilenameVideoId videoId) =
+  addHeader $
+    mconcat
+      [ "attachment; filename=\""
+      , Dom.getYoutubeVideoId videoId
+      , ".mp3\""
+      ]
 
 err444NoResponse :: ServerError
 err444NoResponse =
