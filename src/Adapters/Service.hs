@@ -236,11 +236,14 @@ addFilenameHeader
       encodedFilename =
         TE.decodeUtf8 . BS.toStrict . toLazyByteString . urlEncode mempty . TE.encodeUtf8 $
           mconcat
+            -- date is first because it provides the natural lexicographic order
             [ T.pack . iso8601Show $ utctDay pubDate
             , "_"
-            , title
+            , -- videoId is second because it may be useful for debugging and the
+              -- title may be too long for a filename
+              Dom.getYoutubeVideoId videoId
             , "_"
-            , Dom.getYoutubeVideoId videoId
+            , title
             ]
 addFilenameHeader (FilenameVideoId videoId) =
   addHeader $
