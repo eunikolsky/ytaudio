@@ -220,28 +220,27 @@ tryTakeLock lock lockedAction notLockedAction = bracketOnError acquire releaseIf
 data FilenameSource = FilenameFeedItem Dom.AudioFeedItem | FilenameVideoId Dom.YoutubeVideoId
 
 addFilenameHeader :: (AddHeader h Text orig new) => FilenameSource -> orig -> new
-addFilenameHeader source =
+addFilenameHeader
+  ( FilenameFeedItem
+      (Dom.AudioFeedItem{Dom.afiGuid = videoId, Dom.afiTitle = title, Dom.afiPubDate = pubDate})
+    ) =
+    addHeader $
+      mconcat
+        [ "attachment; filename=\""
+        , T.pack . iso8601Show $ utctDay pubDate
+        , "_"
+        , T.replace "\"" "\\\"" title
+        , "_"
+        , Dom.getYoutubeVideoId videoId
+        , ".mp3\""
+        ]
+addFilenameHeader (FilenameVideoId videoId) =
   addHeader $
     mconcat
       [ "attachment; filename=\""
-      , extraInfoOrEmpty
       , Dom.getYoutubeVideoId videoId
       , ".mp3\""
       ]
-  where
-    videoId = case source of
-      FilenameFeedItem (Dom.AudioFeedItem{Dom.afiGuid = guid}) -> guid
-      FilenameVideoId vid -> vid
-
-    extraInfoOrEmpty = case source of
-      FilenameFeedItem (Dom.AudioFeedItem{Dom.afiTitle = title, Dom.afiPubDate = pubDate}) ->
-        mconcat
-          [ T.pack . iso8601Show $ utctDay pubDate
-          , "_"
-          , T.replace "\"" "\\\"" title
-          , "_"
-          ]
-      FilenameVideoId _ -> ""
 
 err444NoResponse :: ServerError
 err444NoResponse =
