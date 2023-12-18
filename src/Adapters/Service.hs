@@ -214,7 +214,7 @@ tryTakeLock lock lockedAction notLockedAction = bracketOnError acquire releaseIf
 
     -- !only if error! put the lock back if it was taken
     releaseIfError (Just _) = embed $ putMVar lock ()
-    releaseIfError Nothing = do pure ()
+    releaseIfError Nothing = pure ()
 
     -- run `lockedAction` if the lock was taken; otherwise, run `notLockedAction`
     action (Just _) = lockedAction
