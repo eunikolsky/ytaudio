@@ -244,7 +244,7 @@ addFilenameHeader
               -- title may be too long for a filename
               Dom.getYoutubeVideoId videoId
             , "_"
-            , sanitizedTitle
+            , escapeSemicolon sanitizedTitle
             ]
       -- this replaces (consequent) unsafe URL characters with an underscore,
       -- which is needed to have full filenames because gPodder extracts the
@@ -254,6 +254,37 @@ addFilenameHeader
       sanitizedTitle = T.intercalate "_" $ T.split (`S.member` unsafeURLChars) title
       -- https://stackoverflow.com/questions/695438/what-are-the-safe-characters-for-making-urls
       unsafeURLChars = S.fromList "+&=?/#%<>[]{}|\\^"
+      {- URL-encodes semicolons in the text — this is needed so that gPodder
+       - doesn't truncate the filename at a semicolon:
+       -
+       - $ python3
+       - >>> import email
+       - >>> msg=email.message_from_string("Content-Type:audio/mpeg\nContent-Disposition:attachment; filename*=UTF-8''2024%2D04%2D12%5Frb5oiwx%5FY%2Dc%5F%5F1611%20%D0%97%D0%B0%D1%87%D0%B5%D0%BC%20%D0%BD%D1%83%D0%B6%D0%BD%D1%8B%20%D1%82%D1%83%D1%80%D0%BF%D0%BE%D0%B5%D0%B7%D0%B4%D0%BA%D0%B8%3B%20%D0%9C%D0%BE%D0%B1%D0%B8%D0%BB%D0%B8%D0%B7%D0%B0%D1%86%D0%B8%D1%8F%20%D0%B2%20%D0%A3%D0%BA%D1%80%D0%B0%D0%B8%D0%BD%D0%B5.mp3")
+       - >>> v = msg.get_param('filename', header='content-disposition')
+       - >>> v
+       - ('UTF-8', '', '2024-04-12_rb5oiwx_Y-c__1611 Ð\x97Ð°Ñ\x87ÐµÐ¼ Ð½Ñ\x83Ð¶Ð½Ñ\x8b Ñ\x82Ñ\x83Ñ\x80Ð¿Ð¾ÐµÐ·Ð´ÐºÐ¸; Ð\x9cÐ¾Ð±Ð¸Ð»Ð¸Ð·Ð°Ñ\x86Ð¸Ñ\x8f Ð² Ð£ÐºÑ\x80Ð°Ð¸Ð½Ðµ.mp3')
+       - >>> f = email.utils.collapse_rfc2231_value(v)
+       - >>> f
+       - '2024-04-12_rb5oiwx_Y-c__1611 Зачем нужны турпоездки; Мобилизация в Украине.mp3'
+       - >>> import urllib
+       - >>> urllib.parse.urlparse(f)
+       - ParseResult(scheme='', netloc='', path='2024-04-12_rb5oiwx_Y-c__1611 Зачем нужны турпоездки', params=' Мобилизация в Украине.mp3', query='', fragment='')
+       -
+       - >>> f = email.utils.collapse_rfc2231_value('2024-04-12_rb5oiwx_Y-c__1611 Зачем нужны турпоездки%3B Мобилизация в Украине.mp3')
+       - >>> f
+       - '2024-04-12_rb5oiwx_Y-c__1611 Зачем нужны турпоездки%3B Мобилизация в Украине.mp3'
+       - >>> urllib.parse.urlparse(f)
+       - ParseResult(scheme='', netloc='', path='2024-04-12_rb5oiwx_Y-c__1611 Зачем нужны турпоездки%3B Мобилизация в Украине.mp3', params='', query='', fragment='')
+       - >>> urllib.parse.unquote(urllib.parse.urlparse(f).path)
+       - '2024-04-12_rb5oiwx_Y-c__1611 Зачем нужны турпоездки; Мобилизация в Украине.mp3'
+       -
+       - see gPodder's:
+       - * `get_header_param` https://github.com/gpodder/gpodder/blob/3.11.4/src/gpodder/util.py#L2327
+       - * `filename_from_url` https://github.com/gpodder/gpodder/blob/3.11.4/src/gpodder/util.py#L989
+       -
+       - TODO escape other chars instead of santizing them?
+       -}
+      escapeSemicolon = T.replace ";" "%3B"
 addFilenameHeader (FilenameVideoId videoId) =
   addHeader $
     mconcat
