@@ -5,7 +5,7 @@ cabal-version: 1.12
 -- see: https://github.com/sol/hpack
 
 name:           ytaudio
-version:        0.3.7
+version:        0.3.8
 description:    Please see the README on GitHub at <https://github.com/githubuser/ytaudio#readme>
 homepage:       https://github.com/githubuser/ytaudio#readme
 bug-reports:    https://github.com/githubuser/ytaudio/issues
@@ -90,6 +90,7 @@ library
     , filepath
     , http-conduit
     , http-media
+    , http-types
     , microlens
     , mtl
     , ndjson-conduit

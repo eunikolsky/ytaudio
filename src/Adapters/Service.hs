@@ -5,12 +5,10 @@ where
 
 import Conduit
 import Control.Concurrent.MVar
-import Data.Binary.Builder (toLazyByteString)
 import Data.Binary.Builder qualified as BB
 import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
 import Data.Map qualified as M
-import Data.Set qualified as S
 import Data.Text (Text)
 import Data.Text qualified as T
 import Data.Text.Encoding qualified as TE
@@ -20,6 +18,7 @@ import Domain.AudioFeed.Item qualified as Dom
 import Domain.YoutubeFeed qualified as Dom.YoutubeFeed
 import Domain.YoutubeVideoId qualified as Dom
 import Network.HTTP.Media ((//))
+import Network.HTTP.Types (urlEncode)
 import Polysemy
 import Polysemy.AtomicState
 import Polysemy.Error
@@ -27,7 +26,7 @@ import Polysemy.Input
 import Polysemy.Resource
 import Servant
 import Servant.Conduit ()
-import URI.ByteString (Port, urlEncode)
+import URI.ByteString (Port)
 import Usecases.AudioFeed qualified as UC
 import Usecases.EncodeAudio qualified as UC
 import Usecases.FeedConfig qualified as UC
@@ -235,7 +234,7 @@ addFilenameHeader
     addHeader $ "attachment; filename*=UTF-8''" <> encodedFilename <> ".mp3"
     where
       encodedFilename =
-        TE.decodeUtf8 . BS.toStrict . toLazyByteString . urlEncode mempty . TE.encodeUtf8 $
+        TE.decodeUtf8 . urlEncode True . TE.encodeUtf8 $
           mconcat
             -- date is first because it provides the natural lexicographic order
             [ T.pack . iso8601Show $ utctDay pubDate
@@ -244,18 +243,15 @@ addFilenameHeader
               -- title may be too long for a filename
               Dom.getYoutubeVideoId videoId
             , "_"
-            , escapeSemicolon sanitizedTitle
+            , titleToFilename title
             ]
-      -- this replaces (consequent) unsafe URL characters with an underscore,
-      -- which is needed to have full filenames because gPodder extracts the
-      -- filename from the already decoded Content-Disposition filename by
-      -- parsing it as a URL and using the URL path, so a `#` causes
-      -- incomplete filenames since it starts a URL fragment
-      sanitizedTitle = T.intercalate "_" $ T.split (`S.member` unsafeURLChars) title
-      -- https://stackoverflow.com/questions/695438/what-are-the-safe-characters-for-making-urls
-      unsafeURLChars = S.fromList "+&=?/#%<>[]{}|\\^"
-      {- URL-encodes semicolons in the text — this is needed so that gPodder
-       - doesn't truncate the filename at a semicolon:
+
+      titleToFilename = escapeFilename . sanitizeFilename
+      -- replaces slashes with underscores because that seems to be the only
+      -- forbidden characers in macos/linux filesystems
+      sanitizeFilename = T.replace "/" "_"
+      {- URL-encodes the filename — this is needed so that gPodder
+       - doesn't truncate the filename at `;` or `#` (or others):
        -
        - $ python3
        - >>> import email
@@ -282,9 +278,10 @@ addFilenameHeader
        - * `get_header_param` https://github.com/gpodder/gpodder/blob/3.11.4/src/gpodder/util.py#L2327
        - * `filename_from_url` https://github.com/gpodder/gpodder/blob/3.11.4/src/gpodder/util.py#L989
        -
-       - TODO escape other chars instead of santizing them?
+       - Note that this can't be tested with `curl -OJ` (8.7.1) as it doesn't URL
+       - decode the filename, nor does it support `filename*`, only `filename`.
        -}
-      escapeSemicolon = T.replace ";" "%3B"
+      escapeFilename = TE.decodeUtf8 . urlEncode False . TE.encodeUtf8
 addFilenameHeader (FilenameVideoId videoId) =
   addHeader $
     mconcat

@@ -1,5 +1,5 @@
 name:                ytaudio
-version:             0.3.7
+version:             0.3.8
 github:              "githubuser/ytaudio"
 license:             BSD3
 author:              "Author name here"
@@ -82,6 +82,7 @@ library:
   - filepath
   - http-conduit
   - http-media
+  - http-types
   - microlens
   - mtl
   - ndjson-conduit
