@@ -56,7 +56,7 @@ downloadAudioFeed
   :: ( Members
         [ Youtube
         , Error DownloadAudioFeedError
-        , Input Port
+        , Input (Host, Port)
         , AtomicState FullChannels
         , AtomicState AudioFeedItems
         ]
@@ -95,8 +95,9 @@ downloadAudioFeed parseFeed channelId = do
       -- FIXME this information should really be parsed from the actual feed
       emptyFeed <-
         mkRssDoc $ Dom.AudioFeed{afTitle = "", afLink = "http://not.localhost/", afItems = mempty}
-      port <- input
-      pure $ itemsC .| mapC (mkRssItem port) .| renderRssDocumentStreaming emptyFeed .| renderBuilder def
+      (host, port) <- input
+      pure $
+        itemsC .| mapC (mkRssItem (host, port)) .| renderRssDocumentStreaming emptyFeed .| renderBuilder def
 
 {-
  - Note: `mkRssDoc` is a pure function, so I think it has its place in the
@@ -111,7 +112,7 @@ downloadAudioFeed parseFeed channelId = do
  - directly would be much more annoying.
  -}
 
-mkRssDoc :: (Member (Input Port) r) => Dom.AudioFeed -> Sem r RssDocument'
+mkRssDoc :: (Member (Input (Host, Port)) r) => Dom.AudioFeed -> Sem r RssDocument'
 mkRssDoc Dom.AudioFeed{afTitle, afLink, afItems} = do
   port <- input
   let channelItems = mkRssItem port <$> afItems
@@ -146,8 +147,8 @@ mkRssDoc Dom.AudioFeed{afTitle, afLink, afItems} = do
 
 -- this function can't use `Sem r` (for `Input Port`) because it's also used in
 -- a returned conduit, which is in IO
-mkRssItem :: Port -> Dom.AudioFeedItem -> RssItem'
-mkRssItem port Dom.AudioFeedItem{afiTitle, afiGuid, afiPubDate, afiDescription, afiLink} =
+mkRssItem :: (Host, Port) -> Dom.AudioFeedItem -> RssItem'
+mkRssItem (host, port) Dom.AudioFeedItem{afiTitle, afiGuid, afiPubDate, afiDescription, afiLink} =
   RssItem
     { itemTitle = afiTitle <> " [" <> videoId <> "]"
     , itemLink = Just . urlToURI $ afiLink
@@ -168,7 +169,12 @@ mkRssItem port Dom.AudioFeedItem{afiTitle, afiGuid, afiPubDate, afiDescription, 
       [ RssEnclosure
           { enclosureUrl =
               urlToURI $
-                "http://localhost:" <> (T.pack . show . portNumber $ port) <> "/yt/" <> videoId
+                "http://"
+                  <> TE.decodeUtf8 (hostBS host)
+                  <> ":"
+                  <> (T.pack . show . portNumber $ port)
+                  <> "/yt/"
+                  <> videoId
           , enclosureLength = unknownLength
           , enclosureType = "audio/mpeg"
           }

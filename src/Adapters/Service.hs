@@ -26,7 +26,7 @@ import Polysemy.Input
 import Polysemy.Resource
 import Servant
 import Servant.Conduit ()
-import URI.ByteString (Port)
+import URI.ByteString (Host, Port)
 import Usecases.AudioFeed qualified as UC
 import Usecases.EncodeAudio qualified as UC
 import Usecases.FeedConfig qualified as UC
@@ -92,7 +92,7 @@ data AudioServerError
 server
   :: ( Members
         [ UC.Youtube
-        , Input Port
+        , Input (Host, Port)
         , UC.EncodeAudio
         , Error AudioServerError
         , UC.LiveStreamCheck
@@ -111,7 +111,7 @@ getAudioFeed
   :: ( Members
         [ UC.Youtube
         , Error AudioServerError
-        , Input Port
+        , Input (Host, Port)
         , AtomicState UC.FullChannels
         , AtomicState UC.AudioFeedItems
         ]

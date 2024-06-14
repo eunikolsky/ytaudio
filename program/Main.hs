@@ -1,10 +1,11 @@
 module Main (main) where
 
-import Config (port)
+import Config (Config (..))
 import Lib (startApp)
 import Options.Generic (unwrapRecord)
+import URI.ByteString (Host (..))
 
 main :: IO ()
 main = do
-  config <- unwrapRecord "youtube-audio-feed"
-  startApp $ port config
+  Config{port, host} <- unwrapRecord "youtube-audio-feed"
+  startApp (Host host, port)

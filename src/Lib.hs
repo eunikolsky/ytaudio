@@ -24,15 +24,15 @@ import RunLiveStreamCheckYtDlp
 import RunYoutubeHTTP
 import Servant.Server
 import SkipLiveStreamCheck
-import URI.ByteString (Port (..))
+import URI.ByteString (Host (..), Port (..))
 import Usecases.AudioFeed qualified as UC
 import Usecases.EncodeAudio qualified as UC
 import Usecases.GetFeedConfig qualified as UC
 import Usecases.LiveStreamCheck qualified as UC
 import Usecases.Youtube qualified as UC
 
-startApp :: Warp.Port -> IO ()
-startApp port = withStdoutLogger $ \aplogger -> do
+startApp :: (Host, Warp.Port) -> IO ()
+startApp (host, port) = withStdoutLogger $ \aplogger -> do
   -- From: https://github.com/algas/haskell-servant-cookbook/blob/master/doc/Logger.md
   -- TODO this doesn't show the content size (because servant always uses chunked
   -- encoding); it would be great to count the bytes in the response and show
@@ -41,28 +41,29 @@ startApp port = withStdoutLogger $ \aplogger -> do
   concurrentLock <- newMVar ()
   fullChannelsRef <- newIORef mempty
   feedItemsHistoryRef <- newIORef mempty
-  Warp.runSettings settings $ app concurrentLock port fullChannelsRef feedItemsHistoryRef
+  Warp.runSettings settings $ app concurrentLock (host, port) fullChannelsRef feedItemsHistoryRef
 
-app :: MVar () -> Warp.Port -> IORef UC.FullChannels -> IORef UC.AudioFeedItems -> Application
-app concurrentLock port fullChannelsRef feedItemsHistoryRef = serve Ad.api $ liftServer concurrentLock port fullChannelsRef feedItemsHistoryRef
+app
+  :: MVar () -> (Host, Warp.Port) -> IORef UC.FullChannels -> IORef UC.AudioFeedItems -> Application
+app concurrentLock (host, port) fullChannelsRef feedItemsHistoryRef = serve Ad.api $ liftServer concurrentLock (host, port) fullChannelsRef feedItemsHistoryRef
 
 liftServer
-  :: MVar () -> Warp.Port -> IORef UC.FullChannels -> IORef UC.AudioFeedItems -> Server Ad.API
-liftServer concurrentLock port fullChannelsRef feedItemsHistoryRef =
+  :: MVar () -> (Host, Warp.Port) -> IORef UC.FullChannels -> IORef UC.AudioFeedItems -> Server Ad.API
+liftServer concurrentLock (host, port) fullChannelsRef feedItemsHistoryRef =
   hoistServer
     Ad.api
-    (interpretServer port fullChannelsRef feedItemsHistoryRef)
+    (interpretServer (host, port) fullChannelsRef feedItemsHistoryRef)
     (Ad.server concurrentLock)
 
 interpretServer
-  :: Warp.Port
+  :: (Host, Warp.Port)
   -> IORef UC.FullChannels
   -> IORef UC.AudioFeedItems
   -> Sem
       [ UC.Youtube
       , UC.EncodeAudio
       , Error Ad.AudioServerError
-      , Input Port
+      , Input (Host, Port)
       , UC.LiveStreamCheck
       , AtomicState UC.FullChannels
       , AtomicState UC.AudioFeedItems
@@ -71,7 +72,7 @@ interpretServer
       ]
       a
   -> Handler a
-interpretServer port fullChannelsRef feedItemsHistoryRef =
+interpretServer (host, port) fullChannelsRef feedItemsHistoryRef =
   liftToHandler
     . runM
     . runResource
@@ -82,7 +83,7 @@ interpretServer port fullChannelsRef feedItemsHistoryRef =
     -- note the separation of concerns: the usecase doesn't need to change, and
     -- the outer layer decides whether to use the live stream check
     . (if useLiveStreamCheck then runLiveStreamCheckYtDlp else skipLiveStreamCheck)
-    . runInputConst (Port port)
+    . runInputConst (host, Port port)
     . runError @Ad.AudioServerError
     . runEncodeAudioProcess
     . runYoutubeHTTP

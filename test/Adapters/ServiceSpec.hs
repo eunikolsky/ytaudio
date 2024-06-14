@@ -21,7 +21,7 @@ import Servant.Server
 import Test.Hspec
 import Test.Hspec.Wai
 import Text.Show.Unicode
-import URI.ByteString (Port (..))
+import URI.ByteString (Host (..), Port (..))
 import Usecases.AudioFeed qualified as UC
 import Usecases.EncodeAudio qualified as UC
 import Usecases.FeedConfig qualified as UC
@@ -82,7 +82,7 @@ interpretServer
       [ UC.Youtube
       , UC.EncodeAudio
       , Error AudioServerError
-      , Input Port
+      , Input (Host, Port)
       , UC.LiveStreamCheck
       , AtomicState UC.FullChannels
       , AtomicState UC.AudioFeedItems
@@ -98,7 +98,7 @@ interpretServer streams youtubeFeed =
     . evalAtomicStateViaState @UC.AudioFeedItems mempty
     . evalAtomicStateViaState @UC.FullChannels mempty
     . runLiveStreamCheckPure
-    . runInputConst (Port 8080)
+    . runInputConst (Host "localhost", Port 8080)
     . runError @AudioServerError
     . runEncodeAudioPure
     . runYoutubePure (UC.ChannelId "UCnExw5tVdA3TJeb4kmCd-JQ", youtubeFeed, streams)
