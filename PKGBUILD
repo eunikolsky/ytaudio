@@ -19,7 +19,7 @@ backup=()
 options=()
 install=
 changelog=
-source=(ytaudio)
+source=($pkgname.tar)
 noextract=()
 md5sums=('SKIP')
 validpgpkeys=()
@@ -27,4 +27,7 @@ strip=()
 
 package() {
   install -Dm 755 -t "$pkgdir"/usr/bin ytaudio
+
+  find systemd -maxdepth 1 -type f -name '*.service' \
+    -exec install -Dm 644 -t "$pkgdir"/usr/lib/systemd/system "{}" +
 }

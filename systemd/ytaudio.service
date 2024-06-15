@@ -1,0 +1,10 @@
+[Unit]
+Description=ytaudio
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/ytaudio --host "$YTA_HOST" --port "$YTA_PORT"
+User=user
+
+[Install]
+WantedBy=multi-user.target
