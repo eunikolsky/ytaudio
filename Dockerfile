@@ -10,6 +10,7 @@ WORKDIR /build
 ARG ytaudio_path=.stack-work/install/x86_64-linux-*/*/*/bin
 
 COPY PKGBUILD ${ytaudio_path}/ytaudio ./
+ADD systemd ytaudio/systemd
 
 RUN useradd builduser \
     && passwd -d builduser \
