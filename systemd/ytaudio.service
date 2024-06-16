@@ -3,8 +3,13 @@ Description=ytaudio
 After=network.target
 
 [Service]
-ExecStart=/usr/bin/ytaudio --host "$YTA_HOST" --port "$YTA_PORT"
+ExecStart=/usr/bin/ytaudio --port "$YTA_PORT" --url-prefix "$YTA_URL_PREFIX"
 User=user
 
 [Install]
 WantedBy=multi-user.target
+
+# Use `sudo systemctl edit ytaudio.service` to set the environment variables:
+# [Service]
+# Environment="YTA_PORT=12345"
+# Environment="YTA_URL_PREFIX=https://example.com/yt"

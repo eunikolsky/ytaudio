@@ -2,6 +2,7 @@ module Usecases.AudioFeed
   ( downloadAudioFeed
   , AudioFeedItems
   , DownloadAudioFeedError (..)
+  , URLPrefix (..)
   )
 where
 
@@ -56,7 +57,7 @@ downloadAudioFeed
   :: ( Members
         [ Youtube
         , Error DownloadAudioFeedError
-        , Input (Host, Port)
+        , Input (Port, URLPrefix)
         , AtomicState FullChannels
         , AtomicState AudioFeedItems
         ]
@@ -95,9 +96,9 @@ downloadAudioFeed parseFeed channelId = do
       -- FIXME this information should really be parsed from the actual feed
       emptyFeed <-
         mkRssDoc $ Dom.AudioFeed{afTitle = "", afLink = "http://not.localhost/", afItems = mempty}
-      (host, port) <- input
+      urlPrefix <- snd <$> input
       pure $
-        itemsC .| mapC (mkRssItem (host, port)) .| renderRssDocumentStreaming emptyFeed .| renderBuilder def
+        itemsC .| mapC (mkRssItem urlPrefix) .| renderRssDocumentStreaming emptyFeed .| renderBuilder def
 
 {-
  - Note: `mkRssDoc` is a pure function, so I think it has its place in the
@@ -112,10 +113,10 @@ downloadAudioFeed parseFeed channelId = do
  - directly would be much more annoying.
  -}
 
-mkRssDoc :: (Member (Input (Host, Port)) r) => Dom.AudioFeed -> Sem r RssDocument'
+mkRssDoc :: (Member (Input (Port, URLPrefix)) r) => Dom.AudioFeed -> Sem r RssDocument'
 mkRssDoc Dom.AudioFeed{afTitle, afLink, afItems} = do
-  port <- input
-  let channelItems = mkRssItem port <$> afItems
+  urlPrefix <- snd <$> input
+  let channelItems = mkRssItem urlPrefix <$> afItems
   pure
     RssDocument
       { -- fields dependent on `Dom.AudioFeed`
@@ -145,10 +146,12 @@ mkRssDoc Dom.AudioFeed{afTitle, afLink, afItems} = do
       , channelExtensions = NoChannelExtensions
       }
 
+newtype URLPrefix = URLPrefix {getURLPrefix :: Text}
+
 -- this function can't use `Sem r` (for `Input Port`) because it's also used in
 -- a returned conduit, which is in IO
-mkRssItem :: (Host, Port) -> Dom.AudioFeedItem -> RssItem'
-mkRssItem (host, port) Dom.AudioFeedItem{afiTitle, afiGuid, afiPubDate, afiDescription, afiLink} =
+mkRssItem :: URLPrefix -> Dom.AudioFeedItem -> RssItem'
+mkRssItem urlPrefix Dom.AudioFeedItem{afiTitle, afiGuid, afiPubDate, afiDescription, afiLink} =
   RssItem
     { itemTitle = afiTitle <> " [" <> videoId <> "]"
     , itemLink = Just . urlToURI $ afiLink
@@ -169,10 +172,7 @@ mkRssItem (host, port) Dom.AudioFeedItem{afiTitle, afiGuid, afiPubDate, afiDescr
       [ RssEnclosure
           { enclosureUrl =
               urlToURI $
-                "http://"
-                  <> TE.decodeUtf8 (hostBS host)
-                  <> ":"
-                  <> (T.pack . show . portNumber $ port)
+                getURLPrefix urlPrefix
                   <> "/yt/"
                   <> videoId
           , enclosureLength = unknownLength

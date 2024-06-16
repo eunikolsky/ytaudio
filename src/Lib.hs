@@ -24,15 +24,15 @@ import RunLiveStreamCheckYtDlp
 import RunYoutubeHTTP
 import Servant.Server
 import SkipLiveStreamCheck
-import URI.ByteString (Host (..), Port (..))
+import URI.ByteString (Port (..))
 import Usecases.AudioFeed qualified as UC
 import Usecases.EncodeAudio qualified as UC
 import Usecases.GetFeedConfig qualified as UC
 import Usecases.LiveStreamCheck qualified as UC
 import Usecases.Youtube qualified as UC
 
-startApp :: (Host, Warp.Port) -> IO ()
-startApp (host, port) = withStdoutLogger $ \aplogger -> do
+startApp :: (Warp.Port, UC.URLPrefix) -> IO ()
+startApp (port, urlPrefix) = withStdoutLogger $ \aplogger -> do
   -- From: https://github.com/algas/haskell-servant-cookbook/blob/master/doc/Logger.md
   -- TODO this doesn't show the content size (because servant always uses chunked
   -- encoding); it would be great to count the bytes in the response and show
@@ -41,29 +41,37 @@ startApp (host, port) = withStdoutLogger $ \aplogger -> do
   concurrentLock <- newMVar ()
   fullChannelsRef <- newIORef mempty
   feedItemsHistoryRef <- newIORef mempty
-  Warp.runSettings settings $ app concurrentLock (host, port) fullChannelsRef feedItemsHistoryRef
+  Warp.runSettings settings $ app concurrentLock (port, urlPrefix) fullChannelsRef feedItemsHistoryRef
 
 app
-  :: MVar () -> (Host, Warp.Port) -> IORef UC.FullChannels -> IORef UC.AudioFeedItems -> Application
-app concurrentLock (host, port) fullChannelsRef feedItemsHistoryRef = serve Ad.api $ liftServer concurrentLock (host, port) fullChannelsRef feedItemsHistoryRef
+  :: MVar ()
+  -> (Warp.Port, UC.URLPrefix)
+  -> IORef UC.FullChannels
+  -> IORef UC.AudioFeedItems
+  -> Application
+app concurrentLock (port, urlPrefix) fullChannelsRef feedItemsHistoryRef = serve Ad.api $ liftServer concurrentLock (port, urlPrefix) fullChannelsRef feedItemsHistoryRef
 
 liftServer
-  :: MVar () -> (Host, Warp.Port) -> IORef UC.FullChannels -> IORef UC.AudioFeedItems -> Server Ad.API
-liftServer concurrentLock (host, port) fullChannelsRef feedItemsHistoryRef =
+  :: MVar ()
+  -> (Warp.Port, UC.URLPrefix)
+  -> IORef UC.FullChannels
+  -> IORef UC.AudioFeedItems
+  -> Server Ad.API
+liftServer concurrentLock (port, urlPrefix) fullChannelsRef feedItemsHistoryRef =
   hoistServer
     Ad.api
-    (interpretServer (host, port) fullChannelsRef feedItemsHistoryRef)
+    (interpretServer (port, urlPrefix) fullChannelsRef feedItemsHistoryRef)
     (Ad.server concurrentLock)
 
 interpretServer
-  :: (Host, Warp.Port)
+  :: (Warp.Port, UC.URLPrefix)
   -> IORef UC.FullChannels
   -> IORef UC.AudioFeedItems
   -> Sem
       [ UC.Youtube
       , UC.EncodeAudio
       , Error Ad.AudioServerError
-      , Input (Host, Port)
+      , Input (Port, UC.URLPrefix)
       , UC.LiveStreamCheck
       , AtomicState UC.FullChannels
       , AtomicState UC.AudioFeedItems
@@ -72,7 +80,7 @@ interpretServer
       ]
       a
   -> Handler a
-interpretServer (host, port) fullChannelsRef feedItemsHistoryRef =
+interpretServer (port, urlPrefix) fullChannelsRef feedItemsHistoryRef =
   liftToHandler
     . runM
     . runResource
@@ -83,7 +91,7 @@ interpretServer (host, port) fullChannelsRef feedItemsHistoryRef =
     -- note the separation of concerns: the usecase doesn't need to change, and
     -- the outer layer decides whether to use the live stream check
     . (if useLiveStreamCheck then runLiveStreamCheckYtDlp else skipLiveStreamCheck)
-    . runInputConst (host, Port port)
+    . runInputConst (Port port, urlPrefix)
     . runError @Ad.AudioServerError
     . runEncodeAudioProcess
     . runYoutubeHTTP

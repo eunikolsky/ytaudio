@@ -21,8 +21,7 @@ description:         Please see the README on GitHub at <https://github.com/gith
 
 dependencies:
 - base >= 4.7 && < 5
-- bytestring
-- uri-bytestring
+- text
 
 ghc-options:
 - -Wall
@@ -76,6 +75,7 @@ library:
   dependencies:
   - aeson
   - binary
+  - bytestring
   - conduit
   - conduit-extra
   - containers
@@ -93,10 +93,10 @@ library:
   - rss-conduit
   - servant-conduit
   - servant-server
-  - text
   - time
   - timerep
   - unicode-show
+  - uri-bytestring
   - wai
   - wai-logger
   - warp
@@ -147,6 +147,7 @@ tests:
     dependencies:
     - aeson
     - base
+    - bytestring
     - containers
     - hspec
     - hspec-wai
@@ -156,7 +157,7 @@ tests:
     - raw-strings-qq
     - rss-conduit
     - servant-server
-    - text
     - time
     - unicode-show
+    - uri-bytestring
     - ytaudio
